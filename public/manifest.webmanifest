@@ -1,0 +1,17 @@
+{
+  "name": "家庭营养师",
+  "short_name": "营养师",
+  "description": "基于当次食材、运动和健康记录的家庭自用营养师应用。",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FAFAF7",
+  "theme_color": "#708B74",
+  "icons": [
+    {
+      "src": "/assistant.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

@@ -1,0 +1,385 @@
+:root {
+  --bg: #fafaf7;
+  --card: #ffffff;
+  --primary: #708b74;
+  --primary-strong: #5d7a62;
+  --primary-soft: #e8f0e9;
+  --text: #292d2a;
+  --muted: #7a807b;
+  --border: #e4e8e2;
+  --accent: #e7a56f;
+  --danger: #d97966;
+  --radius: 18px;
+  --shadow: 0 8px 24px rgba(41, 45, 42, 0.06);
+  --font: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  min-height: 100vh;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 20px 96px;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 0 16px;
+  gap: 16px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--primary-strong);
+}
+
+.brand-mark {
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  background: var(--primary);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-size: 15px;
+}
+
+.app-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.bottom-nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  background: rgba(255, 255, 255, 0.95);
+  border-top: 1px solid var(--border);
+  backdrop-filter: blur(12px);
+}
+
+.bottom-nav a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 10px 0 12px;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 12px;
+}
+
+.bottom-nav a.active {
+  color: var(--primary-strong);
+  font-weight: 700;
+}
+
+.bottom-nav a span:first-child {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px;
+}
+
+.section-title {
+  margin: 0 0 12px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.stack {
+  display: grid;
+  gap: 16px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.spread {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.button {
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: var(--primary);
+  color: #fff;
+  padding: 10px 20px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.button:hover {
+  background: var(--primary-strong);
+}
+
+.button:active {
+  transform: scale(0.98);
+}
+
+.button.secondary {
+  background: var(--primary-soft);
+  color: var(--primary-strong);
+}
+
+.button.ghost {
+  background: transparent;
+  border-color: var(--border);
+  color: var(--text);
+}
+
+.button.danger {
+  background: var(--danger);
+}
+
+.button.small {
+  padding: 6px 14px;
+  font-size: 13px;
+}
+
+.form-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.form-row {
+  display: grid;
+  gap: 6px;
+}
+
+.form-row label {
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.form-row input,
+.form-row select,
+.form-row textarea {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: #fff;
+  min-width: 0;
+}
+
+.form-row input:focus,
+.form-row select:focus,
+.form-row textarea:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: 1px;
+}
+
+.chip-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.chip.active {
+  background: var(--primary-soft);
+  color: var(--primary-strong);
+  border-color: var(--primary);
+  font-weight: 700;
+}
+
+.progress {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--border);
+  overflow: hidden;
+}
+
+.progress > span {
+  display: block;
+  height: 100%;
+  background: var(--primary);
+}
+
+.assistant {
+  position: fixed;
+  right: 20px;
+  bottom: 92px;
+  z-index: 30;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  background: var(--primary-soft);
+  box-shadow: 0 8px 20px rgba(41, 45, 42, 0.16);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.assistant img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.assistant-bubble {
+  position: fixed;
+  right: 86px;
+  bottom: 100px;
+  z-index: 31;
+  max-width: 280px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 12px 14px;
+  box-shadow: var(--shadow);
+}
+
+.focus-page .assistant,
+.focus-page .assistant-bubble {
+  display: none;
+}
+
+.meal-card {
+  display: grid;
+  gap: 14px;
+}
+
+.meal-primary {
+  display: grid;
+  gap: 10px;
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.stat {
+  background: var(--primary-soft);
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.stat strong {
+  display: block;
+  font-size: 22px;
+  color: var(--primary-strong);
+}
+
+.stat span {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.pie-wrap {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.legend {
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+}
+
+@media (min-width: 900px) {
+  .app-shell {
+    padding: 0 40px 40px;
+  }
+
+  .bottom-nav {
+    position: sticky;
+    top: 0;
+    bottom: auto;
+    grid-template-columns: repeat(3, 160px);
+    justify-content: start;
+    border-top: none;
+    border-bottom: 1px solid var(--border);
+    background: rgba(250, 250, 247, 0.96);
+  }
+
+  .assistant {
+    bottom: 40px;
+  }
+
+  .assistant-bubble {
+    bottom: 48px;
+  }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+    gap: 18px;
+    align-items: start;
+  }
+}
