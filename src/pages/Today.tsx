@@ -2,17 +2,25 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAppStore } from '../store/appStore'
 import { dailyKnowledge } from '../lib/knowledge'
-import { getNextMedal } from '../lib/medals'
 import { dateKey, formatDate } from '../lib/id'
+
+const goalText = {
+  gain_muscle: '增肌',
+  lose_fat: '减脂',
+  maintain_health: '维持健康',
+} as const
 
 export default function Today() {
   const data = useAppStore(state => state.data)
+  const toggleKnowledgeFavorite = useAppStore(state => state.toggleKnowledgeFavorite)
+  const markKnowledgeRead = useAppStore(state => state.markKnowledgeRead)
   const [now] = useState(() => new Date())
+  const [whyOpen, setWhyOpen] = useState(false)
   const today = dateKey(now)
   const hour = now.getHours()
   const displayDate = formatDate(now)
   const knowledge = dailyKnowledge(today)
-  const medal = getNextMedal(data)
+  const saved = data.knowledge.find(item => item.id === knowledge.id)
   const todayLogs = data.mealLogs.filter(log => dateKey(log.date) === today)
   const mealTypes = new Set(todayLogs.map(log => log.mealType))
   const nextMeal =
@@ -23,6 +31,14 @@ export default function Today() {
         : !mealTypes.has('dinner')
           ? '晚餐'
           : '加餐'
+  const suggestTime =
+    nextMeal === '早餐' ? '8:00' : nextMeal === '午餐' ? '12:30' : '18:30'
+  const calorieRange =
+    data.profile?.goal === 'lose_fat'
+      ? '450–550'
+      : data.profile?.goal === 'gain_muscle'
+        ? '650–800'
+        : '500–650'
 
   if (!data.profile) {
     return (
@@ -33,7 +49,7 @@ export default function Today() {
             我需要先了解你的目标、口味和忌口，才能给出更合适的配餐建议。
           </p>
         </div>
-        <Link to="/onboarding" className="button">
+        <Link to="/onboarding" className="button cta-primary">
           开始创建
         </Link>
       </div>
@@ -41,97 +57,70 @@ export default function Today() {
   }
 
   return (
-    <div className="stack">
-      <section className="card spread">
+    <div className="stack today-page">
+      {/* 1. 日期与目标：单行弱视觉 */}
+      <header className="today-head">
         <div>
-          <p className="muted">{displayDate}</p>
-          <h1 className="section-title">{nextMeal}还来得及好好安排</h1>
-          <p className="muted">
-            {data.profile.nickname}，今天的建议会继续围绕你的目标调整。
-          </p>
+          <p className="muted today-date">{displayDate}</p>
+          <h1 className="today-title">{nextMeal}还来得及好好安排</h1>
         </div>
-        <div className="stat">
-          <strong>{new Set(data.mealLogs.map(log => dateKey(log.date))).size}</strong>
-          <span>累计记录日</span>
-        </div>
+        <span className="goal-pill">目标：{goalText[data.profile.goal]}</span>
+      </header>
+
+      {/* 2. 下一餐卡片 + 唯一主行动按钮 */}
+      <section className="card next-meal-card" aria-label="下一餐">
+        <span className="eyebrow">下一餐 · {nextMeal}</span>
+        <h2 className="next-meal-title">
+          用当次已有食材，配一餐主食、蛋白质和蔬菜都照顾到的搭配
+        </h2>
+        <p className="muted next-meal-hint">
+          建议 {suggestTime} 前后 · 约 {calorieRange} kcal
+        </p>
+        <Link to="/meal/new" className="button cta-primary">
+          <span aria-hidden>📷</span> 拍照配餐
+        </Link>
+        <p className="muted next-meal-note">
+          只使用当次拍照并确认的食材；需要补充的食材会单独给出建议，不混入本餐。
+        </p>
       </section>
 
-      <section className="card meal-card">
-        <div className="spread">
-          <div>
-            <h2 className="section-title">下一餐</h2>
-            <p className="muted">根据当次已有食材生成具体菜品和用量。</p>
+      {/* 3. 营养师说：今日知识气泡 */}
+      <section className="card knowledge-bubble" aria-label="营养师说">
+        <img src="/assistant.svg" alt="知夏" className="bubble-avatar" />
+        <div className="bubble-body">
+          <span className="bubble-from">知夏 · 今日知识</span>
+          <p className="bubble-text">{knowledge.summary}</p>
+          <p className="muted bubble-title">{knowledge.title}</p>
+          <div className="row bubble-actions">
+            <button
+              type="button"
+              className="button small ghost"
+              onClick={() => {
+                setWhyOpen(value => !value)
+                if (!saved?.readAt) void markKnowledgeRead(knowledge.id)
+              }}
+            >
+              {whyOpen ? '收起' : '展开说说为什么'}
+            </button>
+            <button
+              type="button"
+              className={`button small ${saved?.favorite ? '' : 'secondary'}`}
+              onClick={() => void toggleKnowledgeFavorite(knowledge.id)}
+            >
+              {saved?.favorite ? '已收进知识册' : '收进知识册'}
+            </button>
+            <Link to="/knowledge" className="bubble-link">
+              知识册 ›
+            </Link>
           </div>
-          <Link to="/meal/new" className="button">
-            拍照配餐
-          </Link>
-        </div>
-        <div className="row">
-          {(['breakfast', 'lunch', 'dinner'] as const).map(meal => {
-            const label =
-              meal === 'breakfast' ? '早餐' : meal === 'lunch' ? '午餐' : '晚餐'
-            const done = mealTypes.has(meal)
-            return (
-              <span key={meal} className={`chip ${done ? 'active' : ''}`}>
-                {label} {done ? '已记录' : '未记录'}
-              </span>
-            )
-          })}
+          {whyOpen && (
+            <div className="bubble-why">
+              <strong>为什么这样说</strong>
+              <p>{knowledge.why}</p>
+            </div>
+          )}
         </div>
       </section>
-
-      <div className="two-col">
-        <section className="card">
-          <div className="spread">
-            <div>
-              <h2 className="section-title">营养师说</h2>
-              <p>{knowledge.summary}</p>
-            </div>
-            <Link to="/knowledge" className="button small secondary">
-              为什么
-            </Link>
-          </div>
-          <p className="muted">{knowledge.title}</p>
-        </section>
-
-        <section className="card stack">
-          <div className="spread">
-            <div>
-              <h2 className="section-title">下一步勋章</h2>
-              {medal ? (
-                <>
-                  <p>
-                    {medal.name}：{medal.current}/{medal.target}
-                  </p>
-                  <div className="progress">
-                    <span
-                      style={{
-                        width: `${Math.min(100, Math.round((medal.current / medal.target) * 100))}%`,
-                      }}
-                    />
-                  </div>
-                </>
-              ) : (
-                <p className="muted">当前勋章都已点亮。</p>
-              )}
-            </div>
-            <Link to="/medals" className="button small ghost">
-              勋章墙
-            </Link>
-          </div>
-          <div className="row">
-            <Link to="/exercise" className="button small ghost">
-              运动记录
-            </Link>
-            <Link to="/health" className="button small ghost">
-              健康指标
-            </Link>
-            <Link to="/off-plan" className="button small ghost">
-              我想吃点别的
-            </Link>
-          </div>
-        </section>
-      </div>
     </div>
   )
 }

@@ -17,6 +17,7 @@ export default function Records() {
   const streak = computeStreak(data.mealLogs, data.restDays)
   const recent = recentDates(data.mealLogs, 7)
   const selectedDate = recent[0] ?? today
+  const todayLogs = data.mealLogs.filter(log => dateKey(log.date) === today)
   const selectedLogs = data.mealLogs.filter(log => dateKey(log.date) === selectedDate)
   const selectedNutrition = summarizeNutrition(selectedLogs)
   const offPlanCount = data.mealLogs.filter(log => log.isOffPlan).length
@@ -69,6 +70,37 @@ export default function Records() {
         >
           {isRestDay ? '取消今日休息日' : '把今天标记为休息日'}
         </button>
+      </section>
+
+      <section className="card stack" aria-label="今天三餐状态">
+        <h2 className="section-title">今天三餐</h2>
+        <div className="row">
+          {(['breakfast', 'lunch', 'dinner'] as const).map(meal => {
+            const label =
+              meal === 'breakfast' ? '早餐' : meal === 'lunch' ? '午餐' : '晚餐'
+            const done = todayLogs.some(log => log.mealType === meal)
+            return (
+              <span key={meal} className={`chip ${done ? 'active' : ''}`}>
+                {label} {done ? '已记录' : '待配餐'}
+              </span>
+            )
+          })}
+        </div>
+      </section>
+
+      <section className="card stack" aria-label="更多记录入口">
+        <h2 className="section-title">其他记录</h2>
+        <div className="row">
+          <Link to="/health" className="button small ghost">
+            健康指标
+          </Link>
+          <Link to="/off-plan" className="button small ghost">
+            我想吃点别的
+          </Link>
+          <Link to="/meal/new" className="button small secondary">
+            拍照配餐
+          </Link>
+        </div>
       </section>
 
       <div className="two-col">

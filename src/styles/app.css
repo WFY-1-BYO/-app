@@ -352,6 +352,153 @@ textarea {
   font-size: 13px;
 }
 
+/* ===== V1.2 Design Tokens：字阶与唯一主行动 ===== */
+.today-page {
+  gap: 20px;
+  max-width: 640px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.today-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.today-date {
+  font-size: 12px;
+  margin: 0 0 2px;
+}
+
+.today-title {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.35;
+  color: var(--text);
+}
+
+.goal-pill {
+  flex: none;
+  font-size: 11px;
+  color: var(--primary-strong);
+  background: var(--primary-soft);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 5px 12px;
+  white-space: nowrap;
+}
+
+/* 首页唯一主 CTA：高 56dp、鼠尾草绿实心 */
+.button.cta-primary {
+  height: 56px;
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 16px;
+  border-radius: 16px;
+  text-decoration: none;
+}
+
+.next-meal-card {
+  display: grid;
+  gap: 12px;
+}
+
+.eyebrow {
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.4px;
+}
+
+.next-meal-title {
+  font-size: 19px;
+  line-height: 1.5;
+  font-weight: 700;
+  margin: 0;
+}
+
+.next-meal-hint {
+  font-size: 13px;
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.next-meal-note {
+  font-size: 12px;
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* 营养师说：今日知识气泡 */
+.knowledge-bubble {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  border-radius: 16px;
+  padding: 16px;
+  background: #fff;
+  border: 1px solid var(--border);
+}
+
+.bubble-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  flex: none;
+  border: 1px solid var(--border);
+}
+
+.bubble-body {
+  min-width: 0;
+  flex: 1;
+}
+
+.bubble-from {
+  font-size: 11px;
+  color: var(--primary-strong);
+  font-weight: 700;
+}
+
+.bubble-text {
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 6px 0 2px;
+}
+
+.bubble-title {
+  font-size: 12px;
+  margin: 0 0 10px;
+}
+
+.bubble-actions {
+  gap: 8px;
+}
+
+.bubble-link {
+  font-size: 12px;
+  color: var(--primary-strong);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.bubble-why {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--bg);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.bubble-why p {
+  margin: 6px 0 0;
+}
+
 @media (min-width: 900px) {
   .app-shell {
     padding: 0 40px 40px;
