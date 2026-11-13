@@ -227,9 +227,12 @@ export const useAppStore = create<AppStore>((set, get) => ({
   },
 }))
 
-export function createDefaultProfile(input: Partial<Profile>): Profile {
+/** 编辑已有档案时沿用 id 与 createdAt，仅更新 updatedAt；新建时生成全新标识。 */
+export function createDefaultProfile(
+  input: Partial<Profile> & { id?: string; createdAt?: string },
+): Profile {
   return {
-    id: createId('profile'),
+    id: input.id ?? createId('profile'),
     nickname: input.nickname ?? '我',
     birthDate: input.birthDate,
     sex: input.sex,
@@ -242,7 +245,7 @@ export function createDefaultProfile(input: Partial<Profile>): Profile {
     tastes: input.tastes ?? [],
     diseases: input.diseases ?? [],
     doctorRestrictions: input.doctorRestrictions ?? '',
-    createdAt: nowIso(),
+    createdAt: input.createdAt ?? nowIso(),
     updatedAt: nowIso(),
   }
 }

@@ -27,18 +27,26 @@ const diseaseOptions: Array<{ value: Disease; label: string }> = [
 export default function Onboarding() {
   const navigate = useNavigate()
   const setProfile = useAppStore(state => state.setProfile)
-  const [nickname, setNickname] = useState('')
-  const [goal, setGoal] = useState<Goal>('maintain_health')
-  const [sex, setSex] = useState<'male' | 'female' | 'other' | ''>('')
-  const [birthDate, setBirthDate] = useState('')
-  const [heightCm, setHeightCm] = useState('')
-  const [weightKg, setWeightKg] = useState('')
-  const [activityLevel, setActivityLevel] = useState<'sedentary' | 'light' | 'moderate' | 'active'>('light')
-  const [tastes, setTastes] = useState<Taste[]>([])
-  const [allergies, setAllergies] = useState('')
-  const [avoid, setAvoid] = useState('')
-  const [diseases, setDiseases] = useState<Disease[]>([])
-  const [doctorRestrictions, setDoctorRestrictions] = useState('')
+  const existing = useAppStore(state => state.data.profile)
+  const isEditing = Boolean(existing)
+  const [nickname, setNickname] = useState(existing?.nickname ?? '')
+  const [goal, setGoal] = useState<Goal>(existing?.goal ?? 'maintain_health')
+  const [sex, setSex] = useState<'male' | 'female' | 'other' | ''>(existing?.sex ?? '')
+  const [birthDate, setBirthDate] = useState(existing?.birthDate ?? '')
+  const [heightCm, setHeightCm] = useState(
+    existing?.heightCm != null ? String(existing.heightCm) : '',
+  )
+  const [weightKg, setWeightKg] = useState(
+    existing?.weightKg != null ? String(existing.weightKg) : '',
+  )
+  const [activityLevel, setActivityLevel] = useState<'sedentary' | 'light' | 'moderate' | 'active'>(
+    existing?.activityLevel ?? 'light',
+  )
+  const [tastes, setTastes] = useState<Taste[]>(existing?.tastes ?? [])
+  const [allergies, setAllergies] = useState((existing?.allergies ?? []).join('、'))
+  const [avoid, setAvoid] = useState((existing?.avoid ?? []).join('、'))
+  const [diseases, setDiseases] = useState<Disease[]>(existing?.diseases ?? [])
+  const [doctorRestrictions, setDoctorRestrictions] = useState(existing?.doctorRestrictions ?? '')
   const [error, setError] = useState('')
 
   const toggleArray = <T,>(values: T[], value: T): T[] =>
@@ -55,6 +63,8 @@ export default function Onboarding() {
       return
     }
     const profile = createDefaultProfile({
+      id: existing?.id,
+      createdAt: existing?.createdAt,
       nickname: nickname.trim(),
       goal,
       sex: sex || undefined,
@@ -75,15 +85,22 @@ export default function Onboarding() {
       doctorRestrictions,
     })
     await setProfile(profile)
-    navigate('/')
+    navigate(isEditing ? '/mine' : '/')
   }
 
   return (
-    <form className="card form-grid" onSubmit={submit} aria-label="创建个人档案">
+    <form
+      className="card form-grid"
+      onSubmit={submit}
+      aria-label={isEditing ? '编辑个人档案' : '创建个人档案'}
+    >
       <div>
-        <h1 className="section-title">创建你的营养档案</h1>
+        <h1 className="section-title">
+          {isEditing ? '编辑你的营养档案' : '创建你的营养档案'}
+        </h1>
         <p className="muted">
           这些信息只保存在本机，用于让配餐建议更贴近你的目标和生活。
+          {isEditing ? '已填入你之前保存的内容，修改后保存即可。' : ''}
         </p>
       </div>
 
@@ -242,7 +259,7 @@ export default function Onboarding() {
 
       <div className="row">
         <button type="submit" className="button">
-          保存并开始
+          {isEditing ? '保存修改' : '保存并开始'}
         </button>
         <button
           type="button"
