@@ -1,4 +1,4 @@
-import type { AppSettings, HealthMetric, HealthUpload, MetricType } from '../types'
+import type { HealthMetric, HealthUpload, MetricType } from '../types'
 import { createId, nowIso } from './id'
 import { metricUnit } from './health'
 
@@ -16,10 +16,8 @@ export const uploadStatusLabels: Record<HealthUpload['status'], string> = {
   failed: '需补充',
 }
 
-/** 是否已填入 AI 密钥；改动 9 会把加密后的密钥写进 settings.aiKeyEncrypted */
-export function hasAiKey(settings: AppSettings): boolean {
-  return Boolean(settings.aiKeyEncrypted)
-}
+// 密钥判定收敛到 aiKey.ts，保留此处导出以兼容改动 8 的调用方
+export { hasAiKey } from './aiKey'
 
 interface ParsedValue {
   type: MetricType

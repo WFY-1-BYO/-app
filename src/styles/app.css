@@ -825,3 +825,35 @@ textarea {
   border-color: var(--border);
 }
 
+/* ===== V1.2 改动 9：AI 密钥设置 ===== */
+.key-status {
+  margin: 0;
+  padding: 8px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.key-status.on {
+  background: var(--primary-soft);
+  color: var(--primary-strong);
+}
+
+.key-status.off {
+  background: var(--bg);
+  color: var(--muted);
+}
+
+.key-disclaimer {
+  display: grid;
+  gap: 8px;
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+}
+
+.key-disclaimer p {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
