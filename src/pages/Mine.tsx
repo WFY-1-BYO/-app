@@ -6,7 +6,6 @@ const links = [
   { to: '/utensils/calibrate', label: '餐具校准' },
   { to: '/knowledge', label: '知识册' },
   { to: '/medals', label: '勋章与奖励' },
-  { to: '/exercise', label: '运动记录' },
   { to: '/health', label: '健康指标' },
   { to: '/import', label: 'NDM 导入导出' },
   { to: '/settings', label: '设置' },

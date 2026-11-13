@@ -23,7 +23,6 @@ export default function MealNew() {
   const [recognitionNote, setRecognitionNote] = useState('')
   const [newName, setNewName] = useState('')
   const [newAmount, setNewAmount] = useState('100')
-  const [exerciseContext, setExerciseContext] = useState('')
   const [error, setError] = useState('')
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -75,7 +74,6 @@ export default function MealNew() {
       profile,
       mealType,
       ingredients,
-      exerciseContext: exerciseContext.trim() || undefined,
       sourceDevice: 'current-device',
     })
     await addMealSession(session)
@@ -239,16 +237,6 @@ export default function MealNew() {
           <button type="button" className="button secondary" onClick={addIngredient}>
             添加食材
           </button>
-        </div>
-
-        <div className="form-row">
-          <label htmlFor="exercise-context">运动背景（可选）</label>
-          <input
-            id="exercise-context"
-            value={exerciseContext}
-            onChange={event => setExerciseContext(event.target.value)}
-            placeholder="例如：下午跑了 20 分钟"
-          />
         </div>
 
         {error && <p style={{ color: 'var(--danger)', margin: 0 }}>{error}</p>}

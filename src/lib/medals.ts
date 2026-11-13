@@ -113,22 +113,6 @@ const medalDefinitions: MedalDefinition[] = [
     },
   },
   {
-    id: 'first_step',
-    name: '第一步',
-    group: 'exercise',
-    condition: '完成第一次真实运动记录',
-    target: 1,
-    current: data => data.exerciseLogs.filter(log => log.status === 'completed').length,
-  },
-  {
-    id: 'say_do',
-    name: '说到做到',
-    group: 'exercise',
-    condition: '累计完成 3 次运动计划',
-    target: 3,
-    current: data => data.exerciseLogs.filter(log => log.status === 'completed').length,
-  },
-  {
     id: 'rainbow_table',
     name: '彩虹餐桌',
     group: 'table',

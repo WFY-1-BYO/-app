@@ -1,7 +1,6 @@
 import type {
   AppData,
   Dish,
-  ExerciseLog,
   HealthMetric,
   KnowledgeItem,
   MealIngredient,
@@ -131,7 +130,6 @@ export function exportNdm(data: AppData, sourceDevice: string): string {
       ['日期', session.date],
       ['餐次', session.mealType],
       ['目标', session.goalSnapshot],
-      ['运动背景', session.exerciseContext],
       ['配餐理由', session.reason],
       ['能量(kcal)', session.nutrition.calories],
       ['碳水(g)', session.nutrition.carbs],
@@ -166,23 +164,6 @@ export function exportNdm(data: AppData, sourceDevice: string): string {
     ]),
   )
   parts.push(section('用餐记录', mealLogBlocks))
-
-  const exerciseBlocks = data.exerciseLogs.map(log =>
-    recordBlock('exercise', log.id, [
-      ['状态', log.status],
-      ['项目', log.type],
-      ['开始时间', log.start],
-      ['时长(min)', log.durationMin],
-      ['强度', log.intensity],
-      ['数据来源', log.source],
-      ['关联配餐', log.sessionId],
-      ['备注', log.note],
-      ['创建时间', log.createdAt],
-      ['修改时间', log.updatedAt],
-      ['来源设备', log.sourceDevice],
-    ]),
-  )
-  parts.push(section('运动记录', exerciseBlocks))
 
   const healthBlocks = data.healthMetrics.map(metric =>
     recordBlock('health_metric', metric.id, [
@@ -349,7 +330,6 @@ function buildMealSession(record: RawRecord): MealSession {
     date: record.fields['日期'] ?? nowIso(),
     mealType: (record.fields['餐次'] as MealSession['mealType']) ?? 'breakfast',
     goalSnapshot: (record.fields['目标'] as MealSession['goalSnapshot']) ?? 'maintain_health',
-    exerciseContext: record.fields['运动背景'] || undefined,
     ingredients: [],
     dishes: [],
     recommendations: [],
@@ -421,23 +401,6 @@ function buildMealLog(record: RawRecord): MealLog {
       fatRatio: 0,
     },
     isOffPlan: parseBoolean(record.fields['是否计划外']),
-    note: record.fields['备注'] || undefined,
-    createdAt: record.fields['创建时间'] ?? nowIso(),
-    updatedAt: record.fields['修改时间'] ?? nowIso(),
-    sourceDevice: record.fields['来源设备'] ?? '',
-  }
-}
-
-function buildExercise(record: RawRecord): ExerciseLog {
-  return {
-    id: record.id,
-    status: (record.fields['状态'] as ExerciseLog['status']) ?? 'planned',
-    type: record.fields['项目'] ?? '',
-    start: record.fields['开始时间'] ?? nowIso(),
-    durationMin: parseNumber(record.fields['时长(min)']) ?? 0,
-    intensity: (record.fields['强度'] as ExerciseLog['intensity']) ?? 'low',
-    source: (record.fields['数据来源'] as ExerciseLog['source']) ?? 'manual',
-    sessionId: record.fields['关联配餐'] || undefined,
     note: record.fields['备注'] || undefined,
     createdAt: record.fields['创建时间'] ?? nowIso(),
     updatedAt: record.fields['修改时间'] ?? nowIso(),
@@ -537,7 +500,7 @@ export function parseNdm(text: string): ParsedNdm {
         data.mealLogs.push(buildMealLog(record))
         break
       case 'exercise':
-        data.exerciseLogs.push(buildExercise(record))
+        // V1.2 起运动不再属于 App 范畴；兼容旧版导出文件，安全忽略而不报错。
         break
       case 'health_metric':
         data.healthMetrics.push(buildHealthMetric(record))
@@ -597,7 +560,6 @@ export function mergeAppData(current: AppData, imported: AppData): MergeResult {
     ...current,
     mealSessions: [...current.mealSessions],
     mealLogs: [...current.mealLogs],
-    exerciseLogs: [...current.exerciseLogs],
     healthMetrics: [...current.healthMetrics],
     utensilCalibrations: [...current.utensilCalibrations],
     knowledge: [...current.knowledge],
@@ -631,7 +593,6 @@ export function mergeAppData(current: AppData, imported: AppData): MergeResult {
 
   result.mealSessions = mergeById(result.mealSessions, imported.mealSessions, '配餐记录')
   result.mealLogs = mergeById(result.mealLogs, imported.mealLogs, '用餐记录')
-  result.exerciseLogs = mergeById(result.exerciseLogs, imported.exerciseLogs, '运动记录')
   result.healthMetrics = mergeById(
     result.healthMetrics,
     imported.healthMetrics,

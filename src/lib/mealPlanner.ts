@@ -118,10 +118,9 @@ export function createMealSession(input: {
   profile: Profile
   mealType: MealType
   ingredients: MealIngredient[]
-  exerciseContext?: string
   sourceDevice: string
 }): MealSession {
-  const { profile, mealType, ingredients, exerciseContext, sourceDevice } = input
+  const { profile, mealType, ingredients, sourceDevice } = input
   const available = filterAvailableIngredients(ingredients, profile)
   const categories = new Set(
     available.map(ingredient => foodCategory(ingredient.name)).filter(Boolean) as string[],
@@ -144,7 +143,6 @@ export function createMealSession(input: {
   const reasonParts: string[] = []
   reasonParts.push(`依据当次已有食材和${goalLabel(profile.goal)}目标搭配。`)
   if (missing.length > 0) reasonParts.push(`当前缺少${missing.join('、')}，已单独给出补充建议。`)
-  if (exerciseContext) reasonParts.push(`结合${exerciseContext}调整了本餐建议。`)
   if (profile.diseases.length > 0)
     reasonParts.push('已按已填写疾病情况优先考虑更稳妥的搭配。')
   return {
@@ -152,7 +150,6 @@ export function createMealSession(input: {
     date: nowIso(),
     mealType,
     goalSnapshot: profile.goal,
-    exerciseContext,
     ingredients: available,
     dishes: [dish],
     recommendations,
@@ -168,22 +165,4 @@ function goalLabel(goal: Goal): string {
   if (goal === 'gain_muscle') return '增肌'
   if (goal === 'lose_fat') return '减脂'
   return '维持健康'
-}
-
-export function adjustMealForExercise(
-  session: MealSession,
-  exerciseCompleted: boolean,
-): MealSession {
-  if (!exerciseCompleted) return session
-  const hasProtein = session.ingredients.some(
-    ingredient => foodCategory(ingredient.name) === 'protein',
-  )
-  const reason = hasProtein
-    ? '已完成运动，本餐保留蛋白质，帮助恢复。'
-    : '已完成运动，但当次食材缺少蛋白质，建议下次补充。'
-  return {
-    ...session,
-    reason: `${session.reason}${reason}`,
-    updatedAt: nowIso(),
-  }
 }

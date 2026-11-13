@@ -7,7 +7,6 @@ import MedalBadge from '../components/MedalBadge'
 const groupLabels: Record<MedalGroup, string> = {
   persistence: '坚持系列',
   table: '餐桌系列',
-  exercise: '运动系列',
   knowledge: '知食系列',
   composure: '从容系列',
 }

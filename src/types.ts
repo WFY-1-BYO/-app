@@ -14,10 +14,6 @@ export type IngredientSource = 'current' | 'recommended'
 
 export type IngredientState = 'raw' | 'cooked'
 
-export type ExerciseStatus = 'planned' | 'completed' | 'cancelled' | 'partial'
-
-export type ExerciseSource = 'manual' | 'import' | 'vivo'
-
 export type MetricType =
   | 'systolic_pressure'
   | 'diastolic_pressure'
@@ -28,7 +24,7 @@ export type MetricType =
   | 'hdl'
   | 'weight'
 
-export type MedalGroup = 'persistence' | 'table' | 'exercise' | 'knowledge' | 'composure'
+export type MedalGroup = 'persistence' | 'table' | 'knowledge' | 'composure'
 
 export interface Profile {
   id: string
@@ -84,7 +80,6 @@ export interface MealSession {
   date: string
   mealType: MealType
   goalSnapshot: Goal
-  exerciseContext?: string
   ingredients: MealIngredient[]
   dishes: Dish[]
   recommendations: MealIngredient[]
@@ -110,21 +105,6 @@ export interface MealLog {
   items: MealLogItem[]
   nutrition: NutritionSummary
   isOffPlan: boolean
-  note?: string
-  createdAt: string
-  updatedAt: string
-  sourceDevice: string
-}
-
-export interface ExerciseLog {
-  id: string
-  status: ExerciseStatus
-  type: string
-  start: string
-  durationMin: number
-  intensity: 'low' | 'medium' | 'high'
-  source: ExerciseSource
-  sessionId?: string
   note?: string
   createdAt: string
   updatedAt: string
@@ -201,7 +181,6 @@ export interface AppData {
   profile: Profile | null
   mealSessions: MealSession[]
   mealLogs: MealLog[]
-  exerciseLogs: ExerciseLog[]
   healthMetrics: HealthMetric[]
   utensilCalibrations: UtensilCalibration[]
   knowledge: KnowledgeItem[]

@@ -7,7 +7,6 @@ describe('项目基础与测试环境', () => {
       'profile',
       'mealSessions',
       'mealLogs',
-      'exerciseLogs',
       'healthMetrics',
       'utensilCalibrations',
       'knowledge',

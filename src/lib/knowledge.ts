@@ -52,16 +52,6 @@ export const knowledgeDatabase: Omit<KnowledgeItem, 'readAt'>[] = [
     favorite: false,
   },
   {
-    id: 'k006',
-    title: '运动后不是必须立刻大补',
-    category: '运动与饮食',
-    summary: '轻度运动后正常吃饭通常就够，剧烈或长时间运动后再考虑补充。',
-    why: '是否需要额外补充，取决于运动强度、时长和当天总摄入。不是每一次运动都要立刻加餐。',
-    relatedFeature: '运动记录',
-    createdAt: '2026-11-12T08:25:00+08:00',
-    favorite: false,
-  },
-  {
     id: 'k007',
     title: '一碗水可以帮你认识家里的碗',
     category: '用量估算',

@@ -2,7 +2,6 @@ import { create } from 'zustand'
 import type {
   AppData,
   AppSettings,
-  ExerciseLog,
   HealthMetric,
   KnowledgeItem,
   MealLog,
@@ -28,7 +27,6 @@ export const emptyAppData: AppData = {
   profile: null,
   mealSessions: [],
   mealLogs: [],
-  exerciseLogs: [],
   healthMetrics: [],
   utensilCalibrations: [],
   knowledge: [],
@@ -47,8 +45,6 @@ interface AppStore {
   updateMealSession: (session: MealSession) => Promise<void>
   addMealLog: (log: MealLog) => Promise<void>
   updateMealLog: (log: MealLog) => Promise<void>
-  addExerciseLog: (log: ExerciseLog) => Promise<void>
-  updateExerciseLog: (log: ExerciseLog) => Promise<void>
   addHealthMetric: (metric: HealthMetric) => Promise<void>
   addUtensilCalibration: (calibration: UtensilCalibration) => Promise<void>
   addKnowledge: (item: KnowledgeItem) => Promise<void>
@@ -140,28 +136,6 @@ export const useAppStore = create<AppStore>((set, get) => ({
       mealLogs: get().data.mealLogs.map(item => (item.id === log.id ? log : item)),
     }
     const data = { ...withLog, medals: computeMedals(withLog) }
-    set({ data })
-    await persist(data)
-  },
-
-  addExerciseLog: async log => {
-    const withExercise = {
-      ...get().data,
-      exerciseLogs: [...get().data.exerciseLogs, log],
-    }
-    const data = { ...withExercise, medals: computeMedals(withExercise) }
-    set({ data })
-    await persist(data)
-  },
-
-  updateExerciseLog: async log => {
-    const withExercise = {
-      ...get().data,
-      exerciseLogs: get().data.exerciseLogs.map(item =>
-        item.id === log.id ? log : item,
-      ),
-    }
-    const data = { ...withExercise, medals: computeMedals(withExercise) }
     set({ data })
     await persist(data)
   },

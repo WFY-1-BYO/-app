@@ -101,6 +101,6 @@ describe('功能八：计划外饮食的人性化处理', () => {
     })
 
     expect(screen.getByText(/之前的坚持仍然算数/)).toBeInTheDocument()
-    expect(screen.getByText(/不需要用极端节食或过量运动补偿/)).toBeInTheDocument()
+    expect(screen.getByText(/不需要用极端节食或额外消耗来补偿/)).toBeInTheDocument()
   })
 })

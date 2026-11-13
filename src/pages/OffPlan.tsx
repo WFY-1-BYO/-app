@@ -93,7 +93,7 @@ export default function OffPlan() {
         <div>
           <h1 className="section-title">已经记下来了</h1>
           <p className="muted">
-            之前的坚持仍然算数。下一餐正常回归，不需要用极端节食或过量运动补偿。
+            之前的坚持仍然算数。下一餐正常回归，不需要用极端节食或额外消耗来补偿。
           </p>
         </div>
         <div className="row">

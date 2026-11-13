@@ -9,7 +9,6 @@ import MealNew from './pages/MealNew'
 import MealResult from './pages/MealResult'
 import MealConfirm from './pages/MealConfirm'
 import Knowledge from './pages/Knowledge'
-import Exercise from './pages/Exercise'
 import UtensilCalibration from './pages/UtensilCalibration'
 import Health from './pages/Health'
 import OffPlan from './pages/OffPlan'
@@ -52,7 +51,6 @@ export default function App() {
           <Route path="/meal/:id" element={<MealResult />} />
           <Route path="/meal/:id/confirm" element={<MealConfirm />} />
           <Route path="/knowledge" element={<Knowledge />} />
-          <Route path="/exercise" element={<Exercise />} />
           <Route path="/utensils/calibrate" element={<UtensilCalibration />} />
           <Route path="/health" element={<Health />} />
           <Route path="/off-plan" element={<OffPlan />} />

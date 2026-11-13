@@ -56,19 +56,6 @@ describe('功能十：本地保存与 NDM 导入导出', () => {
       updatedAt: nowIso(),
       sourceDevice: 'test-device',
     }
-    const exercise = {
-      id: 'ndm-exercise-1',
-      status: 'completed' as const,
-      type: '跑步',
-      start: nowIso(),
-      durationMin: 20,
-      intensity: 'medium' as const,
-      source: 'manual' as const,
-      sessionId: session.id,
-      createdAt: nowIso(),
-      updatedAt: nowIso(),
-      sourceDevice: 'test-device',
-    }
     const healthMetric = {
       id: 'ndm-metric-1',
       type: 'systolic_pressure' as const,
@@ -97,7 +84,6 @@ describe('功能十：本地保存与 NDM 导入导出', () => {
       profile,
       mealSessions: [session],
       mealLogs: [mealLog],
-      exerciseLogs: [exercise],
       healthMetrics: [healthMetric],
       utensilCalibrations: [utensil],
       knowledge,
@@ -105,7 +91,6 @@ describe('功能十：本地保存与 NDM 导入导出', () => {
         ...structuredClone(emptyAppData),
         profile,
         mealLogs: [mealLog],
-        exerciseLogs: [exercise],
         knowledge,
       }),
     }
@@ -121,7 +106,7 @@ describe('功能十：本地保存与 NDM 导入导出', () => {
     expect(ndm).toContain('## 个人档案')
     expect(ndm).toContain('## 配餐记录')
     expect(ndm).toContain('## 用餐记录')
-    expect(ndm).toContain('## 运动记录')
+    expect(ndm).not.toContain('## 运动记录')
     expect(ndm).toContain('## 健康指标')
     expect(ndm).toContain('## 餐具校准')
     expect(ndm).toContain('## 知识与成就')
@@ -142,11 +127,34 @@ describe('功能十：本地保存与 NDM 导入导出', () => {
     expect(parsed.data.mealSessions[0].ingredients.length).toBe(1)
     expect(parsed.data.mealSessions[0].recommendations.length).toBeGreaterThan(0)
     expect(parsed.data.mealLogs.length).toBe(1)
-    expect(parsed.data.exerciseLogs.length).toBe(1)
     expect(parsed.data.healthMetrics.length).toBe(1)
     expect(parsed.data.utensilCalibrations.length).toBe(1)
     expect(parsed.data.knowledge.length).toBe(3)
     expect(parsed.data.medals.length).toBeGreaterThan(0)
+  })
+
+  it('V1.2 导出的 NDM 不含任何运动字段或运动记录标记', () => {
+    const data = useAppStore.getState().data
+    const ndm = exportNdm(data, 'test-device')
+    expect(ndm).not.toContain('运动背景')
+    expect(ndm).not.toContain('运动记录')
+    expect(ndm).not.toContain('@record type=exercise')
+  })
+
+  it('导入旧版含运动段的 NDM 时安全忽略，不报错也不写入数据', () => {
+    const data = useAppStore.getState().data
+    const legacy = [
+      exportNdm(data, 'test-device'),
+      '<!-- @record type=exercise id=legacy-exercise-1 -->',
+      '- 项目：跑步',
+      '- 时长(min)：20',
+      '<!-- @endrecord -->',
+    ].join('\n')
+    const parsed = parseNdm(legacy)
+    expect(parsed.data.profile?.nickname).toBe('数据用户')
+    expect(parsed.data.mealLogs.length).toBe(1)
+    expect('exerciseLogs' in parsed.data).toBe(false)
+    expect(parsed.warnings.some(warning => warning.includes('exercise'))).toBe(false)
   })
 
   it('相同记录导入时会被跳过，不会重复添加', () => {

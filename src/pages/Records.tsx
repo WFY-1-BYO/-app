@@ -55,10 +55,6 @@ export default function Records() {
             <strong>{offPlanCount}</strong>
             <span>计划外饮食</span>
           </div>
-          <div className="stat">
-            <strong>{data.exerciseLogs.length}</strong>
-            <span>运动记录</span>
-          </div>
         </div>
         <p className="muted" style={{ marginTop: 12 }}>
           计划外饮食不会清零坚持成果，它只是真实生活的一部分。
