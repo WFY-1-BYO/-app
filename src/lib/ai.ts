@@ -1,5 +1,6 @@
-import type { MealIngredient } from '../types'
+import type { MealIngredient, ReferenceKind } from '../types'
 import { createId } from './id'
+import { estimateRange, getReferenceOption } from './reference'
 
 const knownIngredients = [
   '米饭',
@@ -51,32 +52,47 @@ export interface RecognizeResult {
 /**
  * 本地识别提供器。
  *
- * 第一版先以文件名和常见食材库做离线识别，避免没有外网 API 密钥时功能不可用。
- * 远程 AI 接入后，可以替换为同一接口的远程实现。
+ * 参照物 → 克重的换算走 lib/reference.ts 的纯本地几何估算，不依赖在线密钥；
+ * 密钥（改动 9）只影响「能否识别到更多品类」，不影响参照物是否生效。
+ * 远程 AI 接入后可以替换为同一接口的远程实现，参照物字段保持不变。
  */
-export async function recognizeIngredientsFromFile(file: File): Promise<RecognizeResult> {
+export async function recognizeIngredientsFromFile(
+  file: File,
+  referenceKind: ReferenceKind = 'card',
+): Promise<RecognizeResult> {
   const fileName = decodeURIComponent(file.name)
   const matched = knownIngredients.filter(name => fileName.includes(name))
-  const ingredients: MealIngredient[] = matched.map(name => ({
-    id: createId('food'),
-    name,
-    source: 'current',
-    estimatedAmount: 100,
-    confirmedAmount: 100,
-    unit: 'g',
-    state: 'raw',
-    used: true,
-  }))
+  const option = getReferenceOption(referenceKind)
+  const withoutScale = option.level === 'C'
+  const ingredients: MealIngredient[] = matched.map(name => {
+    const base = 100
+    return {
+      id: createId('food'),
+      name,
+      source: 'current',
+      estimatedAmount: withoutScale ? undefined : base,
+      confirmedAmount: withoutScale ? undefined : base,
+      unit: 'g',
+      state: 'raw',
+      used: true,
+      referenceKind,
+      estimateRange: estimateRange(base, referenceKind),
+      estimateConfidence: option.confidence,
+      portion: withoutScale ? 1 : undefined,
+    }
+  })
 
   if (ingredients.length === 0) {
     return {
       ingredients,
-      note: '没有从照片文件名中识别到食材，请手动添加或修改。',
+      note: `本地校准估算：${option.label}（${option.size}）。没有从照片识别到食材，请手动添加。`,
     }
   }
   return {
     ingredients,
-    note: `识别到 ${ingredients.length} 种当次食材，请确认用量。`,
+    note: `本地校准估算：${option.label}（${option.size}）。识别到 ${ingredients.length} 种食材，${
+      withoutScale ? '仅品类与份数，请填写克重' : '请确认用量'
+    }；参照物换算不依赖在线密钥。`,
   }
 }
 
@@ -85,6 +101,7 @@ export function createManualIngredient(
   amount: number,
   unit: 'g' | 'ml' = 'g',
   state: 'raw' | 'cooked' = 'raw',
+  referenceKind: ReferenceKind = 'card',
 ): MealIngredient {
   return {
     id: createId('food'),
@@ -95,5 +112,9 @@ export function createManualIngredient(
     unit,
     state,
     used: true,
+    referenceKind,
+    estimateRange: estimateRange(amount, referenceKind),
+    // 用户亲手填的用量视为已确认
+    estimateConfidence: 'high',
   }
 }

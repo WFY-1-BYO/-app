@@ -14,6 +14,18 @@ export type IngredientSource = 'current' | 'recommended'
 
 export type IngredientState = 'raw' | 'cooked'
 
+/** 当次照片里的尺寸参照物 */
+export type ReferenceKind = 'card' | 'checkerboard' | 'calibrated' | 'none'
+
+/** 用量估算的可信标记：高可信 / 需确认 */
+export type EstimateConfidence = 'high' | 'confirm'
+
+/** 由参照物换算出的克重区间；C 级（无参照物）时 min/max 为 0，表示不给克重 */
+export interface AmountEstimate {
+  min: number
+  max: number
+}
+
 export type MetricType =
   | 'systolic_pressure'
   | 'diastolic_pressure'
@@ -65,6 +77,13 @@ export interface MealIngredient {
   used: boolean
   photoPath?: string
   nutritionPer100g?: NutritionSummary
+  /** 当次识别所用的参照物 */
+  referenceKind?: ReferenceKind
+  /** 由参照物换算出的克重区间；C 级不给克重 */
+  estimateRange?: AmountEstimate
+  estimateConfidence?: EstimateConfidence
+  /** C 级降级时只记录的份数 */
+  portion?: number
 }
 
 export interface Dish {

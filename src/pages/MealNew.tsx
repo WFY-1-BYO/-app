@@ -3,7 +3,17 @@ import { useNavigate } from 'react-router-dom'
 import { useAppStore } from '../store/appStore'
 import { createMealSession } from '../lib/mealPlanner'
 import { createManualIngredient, recognizeIngredientsFromFile } from '../lib/ai'
-import type { MealIngredient, MealType } from '../types'
+import {
+  getReferenceOption,
+  hasAmountEstimate,
+  levelText,
+  localEstimateNote,
+  perspectiveCorrection,
+  photoGuide,
+  rangeText,
+  referenceOptions,
+} from '../lib/reference'
+import type { MealIngredient, MealType, ReferenceKind } from '../types'
 
 const mealOptions: Array<{ value: MealType; label: string }> = [
   { value: 'breakfast', label: '早餐' },
@@ -18,22 +28,38 @@ export default function MealNew() {
   const addMealSession = useAppStore(state => state.addMealSession)
   const [mealType, setMealType] = useState<MealType>('lunch')
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
-  const [referenceObject, setReferenceObject] = useState(false)
+  const [referenceKind, setReferenceKind] = useState<ReferenceKind>('card')
   const [ingredients, setIngredients] = useState<MealIngredient[]>([])
   const [recognitionNote, setRecognitionNote] = useState('')
   const [newName, setNewName] = useState('')
   const [newAmount, setNewAmount] = useState('100')
   const [error, setError] = useState('')
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const selectedFileRef = useRef<File | null>(null)
+
+  const option = getReferenceOption(referenceKind)
+
+  const applyRecognition = async (file: File, kind: ReferenceKind) => {
+    const result = await recognizeIngredientsFromFile(file, kind)
+    setIngredients(result.ingredients)
+    setRecognitionNote(result.note)
+  }
 
   const onFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const selected = event.target.files?.[0]
     if (!selected) return
-    const url = URL.createObjectURL(selected)
-    setPreviewUrl(url)
-    const result = await recognizeIngredientsFromFile(selected)
-    setIngredients(result.ingredients)
-    setRecognitionNote(result.note)
+    selectedFileRef.current = selected
+    setPreviewUrl(
+      typeof URL.createObjectURL === 'function' ? URL.createObjectURL(selected) : null,
+    )
+    await applyRecognition(selected, referenceKind)
+  }
+
+  const onReferenceChange = async (next: ReferenceKind) => {
+    setReferenceKind(next)
+    // 已经拍过照片时，按新参照物重新估算，让用户再次确认用量
+    const file = selectedFileRef.current
+    if (file) await applyRecognition(file, next)
   }
 
   const addIngredient = () => {
@@ -47,7 +73,7 @@ export default function MealNew() {
       setError('请填写大于 0 的用量。')
       return
     }
-    setIngredients([...ingredients, createManualIngredient(name, amount)])
+    setIngredients([...ingredients, createManualIngredient(name, amount, 'g', 'raw', referenceKind)])
     setNewName('')
     setNewAmount('100')
     setError('')
@@ -55,6 +81,23 @@ export default function MealNew() {
 
   const updateIngredient = (id: string, patch: Partial<MealIngredient>) => {
     setIngredients(ingredients.map(item => (item.id === id ? { ...item, ...patch } : item)))
+  }
+
+  const confirmIngredient = (id: string) => {
+    const target = ingredients.find(item => item.id === id)
+    const amount = target?.confirmedAmount ?? target?.estimatedAmount ?? 0
+    if (!(amount > 0)) {
+      setError('请先填写大于 0 的确认量，再标记已确认。')
+      return
+    }
+    setError('')
+    setIngredients(
+      ingredients.map(item =>
+        item.id === id
+          ? { ...item, confirmedAmount: amount, estimateConfidence: 'high' as const }
+          : item,
+      ),
+    )
   }
 
   const removeIngredient = (id: string) => {
@@ -66,8 +109,17 @@ export default function MealNew() {
       navigate('/onboarding')
       return
     }
-    if (ingredients.filter(item => item.source === 'current' && item.used).length === 0) {
+    const usable = ingredients.filter(item => item.source === 'current' && item.used)
+    if (usable.length === 0) {
       setError('请至少确认一种当次已有食材。')
+      return
+    }
+    if (usable.some(item => item.estimateConfidence === 'confirm')) {
+      setError('还有食材标记为「需确认」，请逐项核对用量并点「确认用量」后再生成菜谱。')
+      return
+    }
+    if (usable.some(item => !(item.confirmedAmount && item.confirmedAmount > 0))) {
+      setError('有食材还没有填写确认量，请补齐后再生成菜谱。')
       return
     }
     const session = createMealSession({
@@ -82,26 +134,58 @@ export default function MealNew() {
 
   return (
     <div className="stack">
-      <section className="card">
+      <section className="card stack">
         <h1 className="section-title">拍照配餐</h1>
         <p className="muted">
-          请把当次食材分开放置，并放入一个固定参照物。识别结果需要由你确认后才会用于配餐。
+          每次只依据这张照片里当次已有的食材配餐。先把参照物和食材一起拍进去，识别出的用量需要你确认后才用于配餐。
         </p>
 
         <div className="form-row">
           <span>餐次</span>
           <div className="chip-group">
-            {mealOptions.map(option => (
+            {mealOptions.map(item => (
               <button
                 type="button"
-                key={option.value}
-                className={`chip ${mealType === option.value ? 'active' : ''}`}
-                onClick={() => setMealType(option.value)}
+                key={item.value}
+                className={`chip ${mealType === item.value ? 'active' : ''}`}
+                onClick={() => setMealType(item.value)}
               >
-                {option.label}
+                {item.label}
               </button>
             ))}
           </div>
+        </div>
+
+        <div className="form-row">
+          <span>参照物</span>
+          <div className="chip-group" role="group" aria-label="参照物">
+            {referenceOptions.map(item => (
+              <button
+                type="button"
+                key={item.id}
+                className={`chip ${referenceKind === item.id ? 'active' : ''}`}
+                aria-pressed={referenceKind === item.id}
+                onClick={() => {
+                  void onReferenceChange(item.id)
+                }}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+          <p className="muted">
+            {option.size} · {option.hint}
+          </p>
+        </div>
+
+        <div className="card reference-guide stack" aria-label="拍摄指引">
+          <h2 className="section-title">怎么拍</h2>
+          <ul>
+            {photoGuide.map(line => (
+              <li key={line}>{line}</li>
+            ))}
+          </ul>
+          <p className="muted">{perspectiveCorrection}</p>
         </div>
 
         <div className="form-row">
@@ -116,16 +200,6 @@ export default function MealNew() {
           />
         </div>
 
-        <div className="form-row">
-          <label htmlFor="reference">已放入固定参照物</label>
-          <input
-            id="reference"
-            type="checkbox"
-            checked={referenceObject}
-            onChange={event => setReferenceObject(event.target.checked)}
-          />
-        </div>
-
         {previewUrl && (
           <div>
             <img
@@ -137,6 +211,12 @@ export default function MealNew() {
         )}
 
         {recognitionNote && <p className="muted">{recognitionNote}</p>}
+      </section>
+
+      <section className="card stack" aria-label="当前估算方式">
+        <h2 className="section-title">当前估算方式</h2>
+        <p className="level-note">{levelText(option)}</p>
+        <p className="muted">{localEstimateNote}</p>
       </section>
 
       <section className="card stack">
@@ -156,6 +236,19 @@ export default function MealNew() {
                   >
                     移除
                   </button>
+                </div>
+                <div className="estimate-line">
+                  <span
+                    className={`estimate-tag ${
+                      ingredient.estimateConfidence === 'high' ? 'high' : 'confirm'
+                    }`}
+                  >
+                    {ingredient.estimateConfidence === 'high' ? '高可信' : '需确认'}
+                  </span>
+                  <span className="muted">{rangeText(ingredient.estimateRange, ingredient.unit)}</span>
+                  {!hasAmountEstimate(ingredient.estimateRange) && ingredient.portion && (
+                    <span className="muted">约 {ingredient.portion} 份（需你填克重）</span>
+                  )}
                 </div>
                 <div className="row">
                   <label>
@@ -214,6 +307,15 @@ export default function MealNew() {
                     />
                   </label>
                 </div>
+                {ingredient.estimateConfidence === 'confirm' && (
+                  <button
+                    type="button"
+                    className="button small secondary"
+                    onClick={() => confirmIngredient(ingredient.id)}
+                  >
+                    确认用量
+                  </button>
+                )}
               </article>
             ))}
           </div>
@@ -252,15 +354,15 @@ export default function MealNew() {
               setIngredients([])
               setPreviewUrl(null)
               setRecognitionNote('')
+              selectedFileRef.current = null
+              if (fileInputRef.current) fileInputRef.current.value = ''
             }}
           >
             重新开始
           </button>
         </div>
         <p className="muted">
-          {referenceObject
-            ? '已确认参照物，估算会更稳定。'
-            : '建议放入固定参照物，提高用量估算准确度。'}
+          所有食材确认后才用于配餐，最终用量以你填写的确认量为准；切换参照物后会按新参照物重新估算，请再次确认。
         </p>
       </section>
     </div>
