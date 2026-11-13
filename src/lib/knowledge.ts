@@ -117,16 +117,92 @@ export function initialKnowledge(): KnowledgeItem[] {
   return knowledgeDatabase.map(item => ({ ...item }))
 }
 
-export function dailyKnowledge(date: string): KnowledgeItem {
-  const seed = new Date(date).getDate()
-  const index = seed % knowledgeDatabase.length
-  const selected = knowledgeDatabase[index]
-  return { ...selected }
+/** 归一化日期键 YYYY-MM-DD */
+export function toDateKey(input: string): string {
+  return input.slice(0, 10)
 }
 
-export function knowledgeByCategory(
-  category: string,
-): KnowledgeItem[] {
+/**
+ * 归档起始日：知识库最早创建日。
+ * 若系统日期早于知识库创建日（或知识为空），退回今天，保证今天一定有知识。
+ */
+export function knowledgeArchiveStart(items: KnowledgeItem[], today: string): string {
+  const dates = items
+    .map(item => toDateKey(item.createdAt))
+    .filter(Boolean)
+    .sort()
+  const earliest = dates[0]
+  if (!earliest || earliest > today) return today
+  return earliest
+}
+
+/**
+ * 每日知识：同一天恒定返回同一条（一天只推一条），
+ * 按「距 epoch 的天数」轮换，跨月、跨年都不会在每月 1 号重复。
+ */
+export function dailyKnowledge(date: string): KnowledgeItem {
+  const key = toDateKey(date)
+  const parsed = Date.parse(`${key}T00:00:00Z`)
+  const dayNumber = Number.isFinite(parsed) ? Math.floor(parsed / 86400000) : 0
+  const total = knowledgeDatabase.length
+  const index = ((dayNumber % total) + total) % total
+  return { ...knowledgeDatabase[index] }
+}
+
+/** 某一天是否在可回看归档范围内（起始日 ≤ 该日 ≤ 今天） */
+export function isArchivedDate(date: string, startDate: string, today: string): boolean {
+  const key = toDateKey(date)
+  return key >= toDateKey(startDate) && key <= toDateKey(today)
+}
+
+/** 点选某天：范围内返回当天知识，范围外返回 null（不假装已推送） */
+export function archivedKnowledge(
+  date: string,
+  startDate: string,
+  today: string,
+): KnowledgeItem | null {
+  return isArchivedDate(date, startDate, today) ? dailyKnowledge(date) : null
+}
+
+/** 日历网格：周一为第一列，含上月 / 下月补位格 */
+export function monthGrid(
+  year: number,
+  month: number,
+): Array<{ date: string; inMonth: boolean }> {
+  const first = Date.UTC(year, month - 1, 1)
+  const startWeekday = (new Date(first).getUTCDay() + 6) % 7
+  const daysInMonth = new Date(Date.UTC(year, month, 0)).getUTCDate()
+  const cells = Math.ceil((startWeekday + daysInMonth) / 7) * 7
+  const gridStart = first - startWeekday * 86400000
+  return Array.from({ length: cells }, (_, index) => {
+    const d = new Date(gridStart + index * 86400000)
+    return { date: d.toISOString().slice(0, 10), inMonth: d.getUTCMonth() === month - 1 }
+  })
+}
+
+export interface CalendarCell {
+  date: string
+  inMonth: boolean
+  item: KnowledgeItem | null
+}
+
+/** 某月归档：范围内每天恰好一条，范围外为 null（日历里不可点） */
+export function monthArchive(
+  year: number,
+  month: number,
+  startDate: string,
+  today: string,
+): CalendarCell[] {
+  return monthGrid(year, month).map(cell => ({
+    ...cell,
+    item:
+      cell.inMonth && isArchivedDate(cell.date, startDate, today)
+        ? dailyKnowledge(cell.date)
+        : null,
+  }))
+}
+
+export function knowledgeByCategory(category: string): KnowledgeItem[] {
   return knowledgeDatabase
     .filter(item => item.category === category)
     .map(item => ({ ...item }))

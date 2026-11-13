@@ -1,10 +1,25 @@
 import { useMemo, useState } from 'react'
 import { useAppStore } from '../store/appStore'
+import { archivedKnowledge, knowledgeArchiveStart, monthArchive } from '../lib/knowledge'
+import { dateKey } from '../lib/id'
+
+const weekdays = ['一', '二', '三', '四', '五', '六', '日']
 
 export default function Knowledge() {
   const knowledge = useAppStore(state => state.data.knowledge)
   const markKnowledgeRead = useAppStore(state => state.markKnowledgeRead)
   const toggleKnowledgeFavorite = useAppStore(state => state.toggleKnowledgeFavorite)
+  const [now] = useState(() => new Date())
+  const today = dateKey(now)
+  const archiveStart = useMemo(
+    () => knowledgeArchiveStart(knowledge, today),
+    [knowledge, today],
+  )
+  const [view, setView] = useState(() => ({
+    year: now.getFullYear(),
+    month: now.getMonth() + 1,
+  }))
+  const [selectedDate, setSelectedDate] = useState(today)
   const [category, setCategory] = useState('全部')
   const [expanded, setExpanded] = useState<string | null>(null)
 
@@ -18,12 +33,28 @@ export default function Knowledge() {
     return knowledge.filter(item => item.category === category)
   }, [category, knowledge])
 
+  const cells = useMemo(
+    () => monthArchive(view.year, view.month, archiveStart, today),
+    [view, archiveStart, today],
+  )
+  const selected = archivedKnowledge(selectedDate, archiveStart, today)
+  const savedSelected = knowledge.find(item => item.id === selected?.id)
+
+  const shiftMonth = (delta: number) => {
+    const d = new Date(Date.UTC(view.year, view.month - 1 + delta, 1))
+    const next = { year: d.getUTCFullYear(), month: d.getUTCMonth() + 1 }
+    setView(next)
+    const nextCells = monthArchive(next.year, next.month, archiveStart, today)
+    setSelectedDate(nextCells.find(cell => cell.item)?.date ?? today)
+    setExpanded(null)
+  }
+
   return (
     <div className="stack">
-      <section className="card">
+      <section className="card stack">
         <h1 className="section-title">知识册</h1>
         <p className="muted">
-          这里保存你读过的营养知识。它们都很短，适合慢慢积累，不需要一次学完。
+          一天只推一条，不刷屏；往后的日子也能翻回来看之前每一天的知识，不会看完就消失。
         </p>
         <div className="chip-group">
           {categories.map(item => (
@@ -39,7 +70,67 @@ export default function Knowledge() {
         </div>
       </section>
 
-      <div className="stack">
+      <section className="card stack" aria-label="知识日历">
+        <div className="spread">
+          <h2 className="section-title">按日期回看</h2>
+          <span className="muted">从 {archiveStart} 起 · 每天一条</span>
+        </div>
+
+        <div className="calendar-nav">
+          <button type="button" className="button small ghost" onClick={() => shiftMonth(-1)}>
+            上个月
+          </button>
+          <strong>
+            {view.year} 年 {view.month} 月
+          </strong>
+          <button type="button" className="button small ghost" onClick={() => shiftMonth(1)}>
+            下个月
+          </button>
+        </div>
+
+        <div className="calendar-weekdays" aria-hidden="true">
+          {weekdays.map(day => (
+            <span key={day}>{day}</span>
+          ))}
+        </div>
+
+        <div className="calendar-grid">
+          {cells.map(cell => (
+            <button
+              type="button"
+              key={cell.date}
+              className={`calendar-day ${cell.inMonth ? '' : 'outside'} ${
+                cell.date === today ? 'is-today' : ''
+              } ${selectedDate === cell.date ? 'is-selected' : ''}`}
+              disabled={!cell.item}
+              aria-label={`查看 ${cell.date} 的知识`}
+              aria-pressed={selectedDate === cell.date}
+              onClick={() => setSelectedDate(cell.date)}
+            >
+              <span>{Number(cell.date.slice(8))}</span>
+              {cell.item && <i className="calendar-dot" aria-hidden="true" />}
+            </button>
+          ))}
+        </div>
+
+        {selected && (
+          <article className="calendar-detail" aria-label="这一天的知识">
+            <p className="muted">
+              {selectedDate} · {selected.category}
+            </p>
+            <h3 className="section-title">{selected.title}</h3>
+            <p>{selected.summary}</p>
+            <p className="muted">{selected.why}</p>
+            <p className="muted">
+              {savedSelected?.readAt ? '已读过' : '还没读过'} ·{' '}
+              {savedSelected?.favorite ? '已收藏' : '未收藏'} · 可在下方「全部知识」里展开或收藏
+            </p>
+          </article>
+        )}
+      </section>
+
+      <section className="stack" aria-label="全部知识">
+        <h2 className="section-title">全部知识</h2>
         {filtered.map(item => {
           const isOpen = expanded === item.id
           return (
@@ -86,7 +177,7 @@ export default function Knowledge() {
             </article>
           )
         })}
-      </div>
+      </section>
     </div>
   )
 }

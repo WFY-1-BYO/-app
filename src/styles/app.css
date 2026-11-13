@@ -691,3 +691,99 @@ textarea {
   border-color: var(--accent);
 }
 
+/* ===== V1.2 改动 7：知识日历式回看 ===== */
+.calendar-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.calendar-nav strong {
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+}
+
+.calendar-weekdays,
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.calendar-weekdays span {
+  text-align: center;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.calendar-day {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+  font-variant-numeric: tabular-nums;
+}
+
+.calendar-day:disabled {
+  background: transparent;
+  color: var(--muted);
+  opacity: 0.45;
+  cursor: default;
+  border-color: transparent;
+}
+
+.calendar-day.outside {
+  opacity: 0.3;
+}
+
+.calendar-day.is-today {
+  border-color: var(--primary);
+  font-weight: 700;
+}
+
+.calendar-day.is-selected {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+
+.calendar-dot {
+  position: absolute;
+  bottom: 6px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.calendar-day.is-selected .calendar-dot {
+  background: #fff;
+}
+
+.calendar-detail {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+  background: var(--bg);
+}
+
+.calendar-detail h3 {
+  margin: 4px 0 0;
+  font-size: 16px;
+}
+
+.calendar-detail p {
+  margin: 6px 0 0;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
