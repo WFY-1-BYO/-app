@@ -96,11 +96,52 @@ describe('功能九：悬浮角色、勋章与奖励', () => {
     )
 
     expect(screen.getByRole('heading', { name: '勋章墙' })).toBeInTheDocument()
-    expect(screen.getByText('坚持')).toBeInTheDocument()
-    expect(screen.getByText('从容')).toBeInTheDocument()
+    expect(screen.getByText('坚持系列')).toBeInTheDocument()
+    expect(screen.getByText('从容系列')).toBeInTheDocument()
     expect(screen.getByText('第一束光')).toBeInTheDocument()
     expect(screen.getByText('三日新芽')).toBeInTheDocument()
     expect(screen.getByText('已点亮')).toBeInTheDocument()
+  })
+
+  it('每枚搪瓷圆形徽章有独立图案，已点亮与未点亮两态可区分', () => {
+    const data = useAppStore.getState().data
+    useAppStore.setState({
+      data: {
+        ...data,
+        mealLogs: ['2026-11-10', '2026-11-11', '2026-11-12'].map(makeLog),
+        medals: computeMedals({
+          ...data,
+          mealLogs: ['2026-11-10', '2026-11-11', '2026-11-12'].map(makeLog),
+        }),
+      },
+    })
+    const { container } = render(
+      <BrowserRouter>
+        <Medals />
+      </BrowserRouter>,
+    )
+    // 已点亮与未点亮徽章都存在
+    expect(container.querySelectorAll('.medal-badge.is-unlocked').length).toBeGreaterThan(0)
+    expect(container.querySelectorAll('.medal-badge.is-locked').length).toBeGreaterThan(0)
+    // 每枚徽章都有 SVG 图案
+    const badges = container.querySelectorAll('.medal-badge svg')
+    expect(badges.length).toBeGreaterThan(0)
+    expect(badges.length).toBe(container.querySelectorAll('.medal-badge').length)
+    // 未点亮徽章使用虚线圆 + 进度条
+    expect(container.querySelector('.medal-badge.is-locked circle[stroke-dasharray]')).not.toBeNull()
+    expect(container.querySelectorAll('.medal-progress').length).toBeGreaterThan(0)
+    // 已点亮徽章显示点亮日期
+    expect(container.querySelectorAll('.medal-date').length).toBeGreaterThan(0)
+  })
+
+  it('勋章墙保留知夏寄语与不清零说明', () => {
+    render(
+      <BrowserRouter>
+        <Medals />
+      </BrowserRouter>,
+    )
+    expect(screen.getByText(/知夏 · 勋章寄语/)).toBeInTheDocument()
+    expect(screen.getByText(/累计成果不会因为中断而熄灭/)).toBeInTheDocument()
   })
 
   it('达到 30 天里程碑后提供可选奖励', async () => {

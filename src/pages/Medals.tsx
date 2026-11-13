@@ -2,13 +2,14 @@ import { useAppStore } from '../store/appStore'
 import { computeMedals } from '../lib/medals'
 import { createId, formatDate, nowIso } from '../lib/id'
 import type { MedalGroup, Reward } from '../types'
+import MedalBadge from '../components/MedalBadge'
 
 const groupLabels: Record<MedalGroup, string> = {
-  persistence: '坚持',
-  table: '餐桌',
-  exercise: '运动',
-  knowledge: '知食',
-  composure: '从容',
+  persistence: '坚持系列',
+  table: '餐桌系列',
+  exercise: '运动系列',
+  knowledge: '知食系列',
+  composure: '从容系列',
 }
 
 const rewardSuggestions = [
@@ -46,7 +47,7 @@ export default function Medals() {
       <section className="card">
         <h1 className="section-title">勋章墙</h1>
         <p className="muted">
-          勋章奖励长期做得到的事，而不是奖励每餐完美。累计成果不会因为中断而熄灭。
+          奖励长期做得到的事，不奖励每餐完美。累计成果不会因为中断而熄灭，计划外饮食也不清零。
         </p>
         <div className="stat-grid" style={{ marginTop: 12 }}>
           <div className="stat">
@@ -68,34 +69,44 @@ export default function Medals() {
         const groupMedals = medals.filter(medal => medal.group === group)
         return (
           <section className="card stack" key={group}>
-            <h2 className="section-title">{groupLabels[group]}</h2>
-            <div className="stack">
-              {groupMedals.map(medal => (
-                <article key={medal.id} className="card" style={{ boxShadow: 'none' }}>
-                  <div className="spread">
-                    <div>
-                      <strong>{medal.name}</strong>
-                      <p className="muted">{medal.condition}</p>
-                    </div>
-                    <span className="muted">
-                      {medal.current}/{medal.target}
-                    </span>
-                  </div>
-                  <div className="progress">
-                    <span
-                      style={{
-                        width: `${Math.min(
-                          100,
-                          Math.round((medal.current / medal.target) * 100),
-                        )}%`,
-                      }}
-                    />
-                  </div>
-                  {medal.unlockedAt && (
-                    <p className="muted">点亮时间：{formatDate(medal.unlockedAt)}</p>
-                  )}
-                </article>
-              ))}
+            <div className="spread">
+              <h2 className="section-title" style={{ margin: 0 }}>
+                {groupLabels[group]}
+              </h2>
+              <span className="muted">{groupMedals.length} 枚</span>
+            </div>
+            <div className="medal-grid">
+              {groupMedals.map(medal => {
+                const isUnlocked = Boolean(medal.unlockedAt)
+                const percent = Math.min(
+                  100,
+                  Math.round((medal.current / medal.target) * 100),
+                )
+                return (
+                  <article
+                    key={medal.id}
+                    className={`medal-card ${isUnlocked ? 'unlocked' : 'locked'}`}
+                  >
+                    <MedalBadge medal={medal} />
+                    <strong className="medal-name">{medal.name}</strong>
+                    <p className="muted medal-condition">{medal.condition}</p>
+                    {isUnlocked ? (
+                      <p className="medal-date">
+                        {formatDate(medal.unlockedAt!)} 点亮
+                      </p>
+                    ) : (
+                      <>
+                        <div className="progress medal-progress">
+                          <span style={{ width: `${percent}%` }} />
+                        </div>
+                        <p className="muted medal-progress-text">
+                          当前 {medal.current} / {medal.target}
+                        </p>
+                      </>
+                    )}
+                  </article>
+                )
+              })}
             </div>
           </section>
         )
@@ -140,6 +151,16 @@ export default function Medals() {
             ))}
           </div>
         )}
+      </section>
+
+      <section className="card assistant-note">
+        <img src="/assistant.svg" alt="知夏" />
+        <div>
+          <span className="bubble-from">知夏 · 勋章寄语</span>
+          <p>
+            不是每餐都完美，但你一直在了解自己的饮食。这些徽章记的是「我做过很多」，不是「我又失去了什么」。
+          </p>
+        </div>
       </section>
     </div>
   )
