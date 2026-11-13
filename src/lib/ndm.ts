@@ -2,6 +2,7 @@ import type {
   AppData,
   Dish,
   HealthMetric,
+  HealthUpload,
   KnowledgeItem,
   MealIngredient,
   MealLog,
@@ -181,6 +182,21 @@ export function exportNdm(data: AppData, sourceDevice: string): string {
   )
   parts.push(section('健康指标', healthBlocks))
 
+  const healthUploadBlocks = data.healthUploads.map(upload =>
+    recordBlock('health_upload', upload.id, [
+      ['录入方式', upload.kind],
+      ['附件文件名', upload.fileName],
+      ['原始文本', upload.rawText],
+      ['状态', upload.status],
+      ['关联指标', upload.metricIds],
+      ['备注', upload.note],
+      ['创建时间', upload.createdAt],
+      ['修改时间', upload.updatedAt],
+      ['来源设备', upload.sourceDevice],
+    ]),
+  )
+  parts.push(section('健康上传留档', healthUploadBlocks))
+
   const utensilBlocks = data.utensilCalibrations.map(calibration =>
     recordBlock('utensil', calibration.id, [
       ['名称', calibration.name],
@@ -244,6 +260,17 @@ export function exportNdm(data: AppData, sourceDevice: string): string {
         )
       }
     })
+  })
+  data.healthUploads.forEach(upload => {
+    if (upload.fileName) {
+      attachmentBlocks.push(
+        recordBlock('attachment', createId('attachment'), [
+          ['相对路径', upload.fileName],
+          ['类型', upload.kind === 'voice' ? 'audio' : 'image'],
+          ['关联记录', upload.id],
+        ]),
+      )
+    }
   })
   parts.push(section('附件清单', attachmentBlocks))
   parts.push(
@@ -356,6 +383,27 @@ function buildDish(record: RawRecord): Dish {
     servings: parseNumber(record.fields['份数']) ?? 1,
     steps: parseList(record.fields['制作步骤']),
     ingredientIds: parseList(record.fields['食材编号']),
+  }
+}
+
+function buildHealthUpload(record: RawRecord): HealthUpload {
+  return {
+    id: record.id,
+    kind: (record.fields['录入方式'] as HealthUpload['kind']) ?? 'file',
+    fileName: record.fields['附件文件名'] ?? '',
+    rawText:
+      record.fields['原始文本'] && record.fields['原始文本'] !== '-'
+        ? record.fields['原始文本']
+        : undefined,
+    status: (record.fields['状态'] as HealthUpload['status']) ?? 'pending',
+    metricIds: parseList(record.fields['关联指标']),
+    note:
+      record.fields['备注'] && record.fields['备注'] !== '-'
+        ? record.fields['备注']
+        : undefined,
+    createdAt: record.fields['创建时间'] ?? nowIso(),
+    updatedAt: record.fields['修改时间'] ?? nowIso(),
+    sourceDevice: record.fields['来源设备'] ?? '',
   }
 }
 
@@ -505,6 +553,12 @@ export function parseNdm(text: string): ParsedNdm {
       case 'health_metric':
         data.healthMetrics.push(buildHealthMetric(record))
         break
+      case 'health_upload':
+        data.healthUploads.push(buildHealthUpload(record))
+        break
+      case 'attachment':
+        // 附件清单只是文件名索引，不重建二进制数据。
+        break
       case 'utensil':
         data.utensilCalibrations.push(buildUtensil(record))
         break
@@ -561,6 +615,7 @@ export function mergeAppData(current: AppData, imported: AppData): MergeResult {
     mealSessions: [...current.mealSessions],
     mealLogs: [...current.mealLogs],
     healthMetrics: [...current.healthMetrics],
+    healthUploads: [...current.healthUploads],
     utensilCalibrations: [...current.utensilCalibrations],
     knowledge: [...current.knowledge],
     medals: [...current.medals],
@@ -597,6 +652,11 @@ export function mergeAppData(current: AppData, imported: AppData): MergeResult {
     result.healthMetrics,
     imported.healthMetrics,
     '健康指标',
+  )
+  result.healthUploads = mergeById(
+    result.healthUploads,
+    imported.healthUploads,
+    '健康上传留档',
   )
   result.utensilCalibrations = mergeById(
     result.utensilCalibrations,

@@ -8,6 +8,7 @@ describe('项目基础与测试环境', () => {
       'mealSessions',
       'mealLogs',
       'healthMetrics',
+      'healthUploads',
       'utensilCalibrations',
       'knowledge',
       'medals',

@@ -144,6 +144,25 @@ export interface HealthMetric {
   sourceDevice: string
 }
 
+/**
+ * 健康数据上传留档。
+ * 未填 AI 密钥时只留档并标记「待识别」，不假装已识别；
+ * 填入密钥后可对同一份留档重新识别，不需要用户重新上传。
+ * 附件只以文件名关联，图片 / 录音二进制不进入数据或 NDM 正文。
+ */
+export interface HealthUpload {
+  id: string
+  kind: 'photo' | 'voice' | 'file'
+  fileName: string
+  rawText?: string
+  status: 'pending' | 'recognized' | 'failed'
+  metricIds: string[]
+  note?: string
+  createdAt: string
+  updatedAt: string
+  sourceDevice: string
+}
+
 export interface UtensilCalibration {
   id: string
   name: string
@@ -194,6 +213,8 @@ export interface AppSettings {
   aiProvider: 'local' | 'remote'
   vivoHealthAuthorized: boolean
   notificationsEnabled: boolean
+  /** 加密后的 AI 密钥（改动 9 写入）；前端不明文回显 */
+  aiKeyEncrypted?: string
 }
 
 export interface AppData {
@@ -201,6 +222,7 @@ export interface AppData {
   mealSessions: MealSession[]
   mealLogs: MealLog[]
   healthMetrics: HealthMetric[]
+  healthUploads: HealthUpload[]
   utensilCalibrations: UtensilCalibration[]
   knowledge: KnowledgeItem[]
   medals: MedalProgress[]

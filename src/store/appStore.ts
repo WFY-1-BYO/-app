@@ -3,6 +3,7 @@ import type {
   AppData,
   AppSettings,
   HealthMetric,
+  HealthUpload,
   KnowledgeItem,
   MealLog,
   MealSession,
@@ -28,6 +29,7 @@ export const emptyAppData: AppData = {
   mealSessions: [],
   mealLogs: [],
   healthMetrics: [],
+  healthUploads: [],
   utensilCalibrations: [],
   knowledge: [],
   medals: [],
@@ -46,6 +48,8 @@ interface AppStore {
   addMealLog: (log: MealLog) => Promise<void>
   updateMealLog: (log: MealLog) => Promise<void>
   addHealthMetric: (metric: HealthMetric) => Promise<void>
+  addHealthUpload: (upload: HealthUpload) => Promise<void>
+  updateHealthUpload: (upload: HealthUpload) => Promise<void>
   addUtensilCalibration: (calibration: UtensilCalibration) => Promise<void>
   addKnowledge: (item: KnowledgeItem) => Promise<void>
   markKnowledgeRead: (id: string) => Promise<void>
@@ -144,6 +148,26 @@ export const useAppStore = create<AppStore>((set, get) => ({
     const data = {
       ...get().data,
       healthMetrics: [...get().data.healthMetrics, metric],
+    }
+    set({ data })
+    await persist(data)
+  },
+
+  addHealthUpload: async upload => {
+    const data = {
+      ...get().data,
+      healthUploads: [...get().data.healthUploads, upload],
+    }
+    set({ data })
+    await persist(data)
+  },
+
+  updateHealthUpload: async upload => {
+    const data = {
+      ...get().data,
+      healthUploads: get().data.healthUploads.map(item =>
+        item.id === upload.id ? upload : item,
+      ),
     }
     set({ data })
     await persist(data)

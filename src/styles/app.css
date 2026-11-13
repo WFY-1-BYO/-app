@@ -787,3 +787,41 @@ textarea {
   line-height: 1.6;
 }
 
+/* ===== V1.2 改动 8：健康数据上传留档 ===== */
+.upload-item {
+  display: grid;
+  gap: 4px;
+}
+
+.upload-item p {
+  margin: 0;
+  font-size: 12px;
+}
+
+.upload-status {
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.upload-status.pending {
+  background: #fff3e8;
+  color: #a9682f;
+  border-color: var(--accent);
+}
+
+.upload-status.recognized {
+  background: var(--primary-soft);
+  color: var(--primary-strong);
+  border-color: var(--primary);
+}
+
+.upload-status.failed {
+  background: var(--bg);
+  color: var(--muted);
+  border-color: var(--border);
+}
+
