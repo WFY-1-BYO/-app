@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>家庭自用营养师 App · V1.2 交付总览</title>
+<style>
+  :root {
+    --bg: #FAFAF7;
+    --card: #FFFFFF;
+    --primary: #708B74;
+    --primary-soft: #EDF2EC;
+    --primary-strong: #4C6651;
+    --text: #292D2A;
+    --muted: #7A807B;
+    --accent: #E7A56F;
+    --border: #E4E8E2;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 32px 20px 72px; }
+  header { padding: 28px 0 20px; border-bottom: 1px solid var(--border); margin-bottom: 28px; }
+  .eyebrow { font-size: 12px; color: var(--muted); letter-spacing: 1px; margin: 0 0 8px; }
+  h1 { font-size: 28px; margin: 0 0 10px; line-height: 1.35; }
+  .sub { color: var(--muted); font-size: 14px; margin: 0; }
+  .badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+  .badge {
+    font-size: 12px; font-weight: 700; padding: 6px 14px; border-radius: 999px;
+    background: var(--primary-soft); color: var(--primary-strong); border: 1px solid var(--border);
+  }
+  .badge.warn { background: #FFF3E8; color: #A9682F; border-color: var(--accent); }
+  h2 { font-size: 19px; margin: 36px 0 14px; padding-left: 12px; border-left: 3px solid var(--primary); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+  .card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+    padding: 18px; box-shadow: 0 2px 10px rgba(41,45,42,.04);
+  }
+  .card .no {
+    display: inline-block; font-size: 11px; font-weight: 700; color: var(--primary-strong);
+    background: var(--primary-soft); border-radius: 6px; padding: 2px 8px; margin-bottom: 8px;
+  }
+  .card h3 { font-size: 15px; margin: 0 0 8px; }
+  .card p { font-size: 13px; color: var(--muted); margin: 0 0 8px; }
+  .card code { font-size: 11px; color: var(--primary-strong); word-break: break-all; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; background: var(--card); border-radius: 12px; overflow: hidden; }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border); }
+  th { background: var(--primary-soft); color: var(--primary-strong); font-size: 12px; }
+  tr:last-child td { border-bottom: none; }
+  .ok { color: var(--primary-strong); font-weight: 700; }
+  .pending { color: #A9682F; font-weight: 700; }
+  ul { padding-left: 20px; font-size: 14px; }
+  li { margin: 6px 0; }
+  .commits { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; line-height: 1.9; }
+  .commits span { color: var(--primary-strong); font-weight: 700; }
+  .note {
+    background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--accent);
+    border-radius: 12px; padding: 16px 18px; font-size: 13px; color: var(--muted);
+  }
+  footer { margin-top: 40px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--border); padding-top: 16px; }
+  @media (max-width: 600px) { h1 { font-size: 23px; } .wrap { padding: 20px 14px 48px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <p class="eyebrow">家庭自用 · 单用户 · vivo S7 / 联想 Y900</p>
+  <h1>V1.2 修改与交付总览</h1>
+  <p class="sub">依据《V1.2 变更与验收基线》，9 项问题逐项修改、逐项测验，全部完成后再全量回归。</p>
+  <div class="badges">
+    <span class="badge">9 / 9 项改动完成</span>
+    <span class="badge">19 文件 / 104 测试全部通过</span>
+    <span class="badge">typecheck · lint · build 全绿</span>
+    <span class="badge warn">GitHub 推送待授权</span>
+    <span class="badge warn">线上版本待重新发布</span>
+  </div>
+</header>
+
+<h2>一、测试纪律（按你的要求执行）</h2>
+<div class="card">
+  <ul>
+    <li>每改完一个功能，立即执行 <code>pnpm typecheck &amp;&amp; pnpm lint &amp;&amp; pnpm test &amp;&amp; pnpm build</code>，通过后才进入下一项。</li>
+    <li>不降低标准、不跳过测试、不使用 <code>.skip</code> / <code>.only</code>；每个改动都补了对应回归测试。</li>
+    <li>9 项全部改完后，再单独执行一次完整回归（本次结果见第三节）。</li>
+    <li>每个改动单独一次本地提交，提交信息标注改动编号。</li>
+  </ul>
+</div>
+
+<h2>二、9 项改动明细</h2>
+<div class="grid">
+  <div class="card"><span class="no">改动 1</span><h3>首页极简一屏</h3><p>日期目标 → 下一餐卡片 → 唯一「拍照配餐」主按钮 → 营养师说知识气泡。三餐状态、坚持/勋章、健康提醒移入记录页。</p><code>today.test.tsx · 1ed2a44</code></div>
+  <div class="card"><span class="no">改动 2</span><h3>勋章样式补齐</h3><p>搪瓷圆形徽章，每枚独立 SVG 图案（碗/勺/新芽/星星/四季），已点亮与未点亮两态、点亮日期、进度条。</p><code>medals.test.tsx · b532582</code></div>
+  <div class="card"><span class="no">改动 3+4</span><h3>运动内容全删干净</h3><p>入口、页面、字段、勋章、动态配餐、NDM 段、知识条目、测试全部移除；旧 NDM 的运动段安全忽略不报错。</p><code>exercise-removal.test.tsx · ce95a06</code></div>
+  <div class="card"><span class="no">改动 5</span><h3>营养档案回填</h3><p>再次打开引导页预填全部字段；编辑保存保留原 id 与 createdAt，只更新 updatedAt。</p><code>profile-edit.test.tsx · 8c3bf18</code></div>
+  <div class="card"><span class="no">改动 6</span><h3>参照物完整方案</h3><p>银行卡 85.6×54mm / 棋盘卡 100×100mm / 已校准碗盘 / 无参照物；四角透视校正、45°–90° 俯视不强制垂直；A/B/C 三级降级；估算区间 + 高可信/需确认；确认后才配餐；无 key 也能本地估算。</p><code>reference.test.tsx · a1f6888</code></div>
+  <div class="card"><span class="no">改动 7</span><h3>知识日历式回看</h3><p>一天只推一条，按天序轮换跨月不重复；日历点某天看当天知识，未来/未推送日期不可点；保留分类筛选、为什么、收藏、已读。</p><code>knowledge-calendar.test.tsx · 295993f</code></div>
+  <div class="card"><span class="no">改动 8</span><h3>健康数据拍照/语音/文件录入</h3><p>主入口改为拍照与文件上传，支持语音转文字（不支持时降级提示）；无 key 只留档标「待识别」；填入 key 后自动重识别同一份留档，不需重新上传；手动录入保留兜底；附件只按文件名关联，不进 NDM 正文。</p><code>health-capture.test.tsx · 0c63799</code></div>
+  <div class="card"><span class="no">改动 9</span><h3>AI 密钥加密设置</h3><p>接口地址内置，设置页只填一次；密码类型输入、加密后存本地、界面不明文回显；无 key 全部降级本地规则；有 key 自动启用在线识别并重试待识别留档；如实说明不是服务端级隐藏。</p><code>settings.test.tsx · 47d2695</code></div>
+</div>
+
+<h2>三、全量回归结果</h2>
+<table>
+  <tr><th>检查项</th><th>命令</th><th>结果</th></tr>
+  <tr><td>类型检查</td><td>pnpm typecheck</td><td class="ok">通过</td></tr>
+  <tr><td>静态检查</td><td>pnpm lint</td><td class="ok">0 warning / 0 error（62 文件、116 规则）</td></tr>
+  <tr><td>单元测试</td><td>pnpm test</td><td class="ok">19 文件 / 104 测试全部通过</td></tr>
+  <tr><td>异常警告</td><td>act(...) 未包裹等</td><td class="ok">0 条</td></tr>
+  <tr><td>生产构建</td><td>pnpm build</td><td class="ok">通过（65 模块，CSS 10.47 kB / JS 472.38 kB）</td></tr>
+  <tr><td>验收清单</td><td>V1.2 基线第 2–9 节</td><td class="ok">全部勾选</td></tr>
+</table>
+
+<h2>四、本地提交记录</h2>
+<div class="card commits">
+  <div><span>82785b3</span> V1.1 基线（第一版已交付代码）</div>
+  <div><span>10c287a</span> V1.2 变更与验收基线、PRD/UI/NDM 规范入库</div>
+  <div><span>1ed2a44</span> 改动1 首页极简一屏</div>
+  <div><span>b532582</span> 改动2 勋章墙徽章样式</div>
+  <div><span>ce95a06</span> 改动3+4 运动相关内容全部删除</div>
+  <div><span>8c3bf18</span> 改动5 营养档案回填</div>
+  <div><span>a1f6888</span> 改动6 参照物方案落地</div>
+  <div><span>295993f</span> 改动7 知识日历式回看</div>
+  <div><span>0c63799</span> 改动8 健康数据拍照/语音/文件录入</div>
+  <div><span>47d2695</span> 改动9 AI 密钥加密设置</div>
+  <div><span>（本次）</span> 勾选 V1.2 验收清单、加入交付总览</div>
+</div>
+
+<h2>五、还需要你确认的两件事</h2>
+<div class="note">
+  <p style="margin:0 0 10px"><strong class="pending">1. GitHub 推送尚未完成。</strong>你已确认「授权 + 保持公开」，但当前会话里没有 GitHub 连接器，<code>gh</code> 未登录、也没有可用凭证，实测推送返回 <code>could not read Username for 'https://github.com'</code>。所以 11 次提交目前都在本地 <code>master</code> 分支。请重新授权 GitHub，我再一次性推送到 <code>https://github.com/WFY-1-BYO/-app</code>。仓库只会提交源码与文档，不含真实健康数据、<code>.ndm.md</code> 数据文件、密钥或附件。</p>
+  <p style="margin:0"><strong class="pending">2. 线上 App 仍是 V1.1。</strong>目前可访问的在线版是修复 IndexedDB 后的第一版；V1.2 的 9 项改动还没覆盖上去。按之前的约定，我不会在改动过程中擅自覆盖线上版本 —— 需要你明确授权后，我再重新构建、发布并用全新浏览器验证。</p>
+</div>
+
+<h2>六、如实说明的边界</h2>
+<div class="card">
+  <ul>
+    <li>密钥是<strong>纯前端加密存储</strong>：界面不回显、不写进 NDM，但仍可能被从本机代码或存储中提取，不等同于服务端级隐藏。</li>
+    <li>参照物换算、健康数据识别在第一版走<strong>本地规则降级</strong>；填入 key 后启用在线识别，在线接口地址为内置常量。</li>
+    <li>语音转文字依赖浏览器原生能力，不支持时给出降级提示，可上传录音文件或粘贴转写文本。</li>
+    <li>vivo 健康第一版仍为授权预留，健康分析只做趋势与就医提醒，不做诊断。</li>
+  </ul>
+</div>
+
+<footer>依据文件：docs/V1.2变更与验收基线.md · docs/PRD_V1.1.md · docs/UI设计方案_V1.1_文字方案.md · docs/NDM格式规范.md<br>回归时间：2026-11-13 · 项目路径：/workspace/family-nutritionist</footer>
+
+</div>
+</body>
+</html>
