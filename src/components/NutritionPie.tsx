@@ -1,9 +1,10 @@
 import type { NutritionSummary } from '../types'
 
+/** 只用 UI 方案指定的 6 色：主色绿、柔橙、分割线浅灰绿。 */
 const colors = {
-  carbs: '#dfb56d',
-  protein: '#708b74',
-  fat: '#d98c6a',
+  carbs: '#708B74',
+  protein: '#E7A56F',
+  fat: '#E4E8E2',
 }
 
 export default function NutritionPie({ nutrition }: { nutrition: NutritionSummary }) {
@@ -17,7 +18,7 @@ export default function NutritionPie({ nutrition }: { nutrition: NutritionSummar
   return (
     <div className="pie-wrap">
       <svg viewBox="0 0 120 120" width="160" height="160" role="img" aria-label="三大营养素供能比例">
-        <circle cx="60" cy="60" r={radius} fill="none" stroke="#eef1ee" strokeWidth="16" />
+        <circle cx="60" cy="60" r={radius} fill="none" stroke="#FAFAF7" strokeWidth="16" />
         <circle
           cx="60"
           cy="60"

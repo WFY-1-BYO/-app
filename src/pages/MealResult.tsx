@@ -90,7 +90,7 @@ export default function MealResult() {
                     ? 'var(--primary-strong)'
                     : evaluation.level === 'acceptable'
                       ? 'var(--accent)'
-                      : 'var(--danger)',
+                      : 'var(--notice-ink)',
               }}
             >
               {evaluation.message}

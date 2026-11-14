@@ -369,7 +369,7 @@ export default function Health() {
           />
         </div>
 
-        {error && <p style={{ color: 'var(--danger)', margin: 0 }}>{error}</p>}
+        {error && <p style={{ color: 'var(--notice-ink)', margin: 0 }}>{error}</p>}
 
         <button type="submit" className="button">
           保存健康指标
@@ -413,7 +413,7 @@ export default function Health() {
                         ? 'var(--primary-strong)'
                         : analysis.level === 'unknown'
                           ? 'var(--muted)'
-                          : 'var(--danger)',
+                          : 'var(--notice-ink)',
                   }}
                 >
                   {analysis.message}

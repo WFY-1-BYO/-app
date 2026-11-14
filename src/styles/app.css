@@ -8,9 +8,18 @@
   --muted: #7a807b;
   --border: #e4e8e2;
   --accent: #e7a56f;
-  --danger: #d97966;
-  --radius: 18px;
-  --shadow: 0 8px 24px rgba(41, 45, 42, 0.06);
+  /* UI 方案禁止红色失败色：错误提示统一用中灰，靠文字说明而非颜色警示 */
+  --notice-ink: #7a807b;
+  --radius: 16px;
+  --shadow: 0 1px 2px rgba(41, 45, 42, 0.04), 0 8px 24px rgba(41, 45, 42, 0.05);
+  /* 字阶：能量 28 / 页面标题 22 / 卡片主标题 19 / 区块 16 / 正文 14 / 辅助 12 / 标签 11 */
+  --fs-hero: 28px;
+  --fs-title: 22px;
+  --fs-card-title: 19px;
+  --fs-section: 16px;
+  --fs-body: 14px;
+  --fs-hint: 12px;
+  --fs-label: 11px;
   --font: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
@@ -29,8 +38,9 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--font);
-  font-size: 16px;
-  line-height: 1.55;
+  font-size: var(--fs-body);
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -103,7 +113,9 @@ textarea {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 3px;
+  min-height: 56px;
   padding: 10px 0 12px;
   color: var(--muted);
   text-decoration: none;
@@ -126,12 +138,12 @@ textarea {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  padding: 20px;
+  padding: 16px;
 }
 
 .section-title {
   margin: 0 0 12px;
-  font-size: 18px;
+  font-size: var(--fs-section);
   font-weight: 700;
 }
 
@@ -161,9 +173,10 @@ textarea {
 
 .button {
   border: 1px solid transparent;
-  border-radius: 999px;
+  border-radius: 14px;
   background: var(--primary);
   color: #fff;
+  min-height: 44px;
   padding: 10px 20px;
   font-weight: 700;
   cursor: pointer;
@@ -179,8 +192,9 @@ textarea {
 }
 
 .button.secondary {
-  background: var(--primary-soft);
-  color: var(--primary-strong);
+  background: #fff;
+  border-color: var(--border);
+  color: var(--text);
 }
 
 .button.ghost {
@@ -189,12 +203,11 @@ textarea {
   color: var(--text);
 }
 
-.button.danger {
-  background: var(--danger);
-}
+/* 文档禁止红色失败色，红色按钮规则已移除 */
 
 .button.small {
-  padding: 6px 14px;
+  min-height: 44px;
+  padding: 8px 14px;
   font-size: 13px;
 }
 
@@ -401,7 +414,7 @@ textarea {
   justify-content: center;
   gap: 8px;
   font-size: 16px;
-  border-radius: 16px;
+  border-radius: 14px;
   text-decoration: none;
 }
 
@@ -795,7 +808,7 @@ textarea {
 
 .estimate-tag.confirm {
   background: #fff3e8;
-  color: #a9682f;
+  color: var(--text);
   border-color: var(--accent);
 }
 
@@ -917,7 +930,7 @@ textarea {
 
 .upload-status.pending {
   background: #fff3e8;
-  color: #a9682f;
+  color: var(--text);
   border-color: var(--accent);
 }
 
@@ -1163,3 +1176,33 @@ textarea {
   }
 }
 
+
+
+/* ===== V1.3 改编 D：Design Tokens 收尾 ===== */
+button.chip {
+  min-height: 44px;
+}
+
+.health-big {
+  font-size: var(--fs-hero);
+}
+
+.next-meal-title {
+  font-size: var(--fs-card-title);
+}
+
+.today-title {
+  font-size: var(--fs-title);
+}
+
+/* 系统字体放大时不清空布局，字号用可缩放单位 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

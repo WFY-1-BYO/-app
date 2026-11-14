@@ -134,7 +134,7 @@ export default function UtensilCalibration() {
           />
         </div>
 
-        {error && <p style={{ color: 'var(--danger)', margin: 0 }}>{error}</p>}
+        {error && <p style={{ color: 'var(--notice-ink)', margin: 0 }}>{error}</p>}
 
         <button type="submit" className="button">
           保存校准

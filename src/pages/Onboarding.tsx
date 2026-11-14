@@ -255,7 +255,7 @@ export default function Onboarding() {
         />
       </div>
 
-      {error && <p style={{ color: 'var(--danger)', margin: 0 }}>{error}</p>}
+      {error && <p style={{ color: 'var(--notice-ink)', margin: 0 }}>{error}</p>}
 
       <div className="row">
         <button type="submit" className="button">
