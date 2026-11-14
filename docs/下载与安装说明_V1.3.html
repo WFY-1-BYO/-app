@@ -33,24 +33,34 @@
 <h1>家庭营养师 V1.3 · 下载与安装</h1>
 <div class="sub">单人 · 双设备 · 本地存储 ｜ 最新构建 2026-11-14 ｜ 交付版本 v1.3.0</div>
 
-<div class="tip"><b>先说清楚形态：</b>这是可直接运行的 <b>PWA 网页应用</b>，不是安卓 APK 安装包。GitHub Actions 能从源码自动编译出下面这份成品包；在 vivo S7 / 联想 Y900 上，用在线 HTTPS 地址「添加到主屏幕」即可像 App 一样全屏、离线使用。若要真正的 APK，需要额外做 Capacitor 封装与签名，可另行提出。</div>
+<div class="tip"><b>形态：</b>V1.3 同时提供<b>安卓 APK</b>与 <b>PWA 网页版</b>。APK 用 Capacitor 封装、自签名，可直接装到 vivo S7 / 联想 Y900，离线可用；网页版用在线 HTTPS 地址「添加到主屏幕」即可。两者功能一致，数据都只存在本机。</div>
 
 <h2>一、下载最新成品</h2>
-<a class="dl" href="/workspace/家庭营养师App_V1.3_可下载版.zip"><b>家庭营养师App_V1.3_可下载版.zip（约 230 KB）</b><span>含完整生产构建、一键启动脚本、使用说明。解压即用，不依赖网络、不需要安装依赖。</span></a>
-<a class="dl" href="https://github.com/WFY-1-BYO/-app/releases/tag/v1.3.0"><b>从 GitHub Release 下载（同一份包）</b><span>Release <code>v1.3.0</code> 的资产 <code>family-nutritionist-v1.3.zip</code>，可在任意设备上下载。</span></a>
+<a class="dl" href="https://github.com/WFY-1-BYO/-app/releases/download/v1.3.0/family-nutritionist-v1.3.0.apk"><b>family-nutritionist-v1.3.0.apk（约 3.5 MB，推荐）</b><span>安卓安装包，传到手机 / 平板点击安装即可。包名 <code>com.family.nutritionist</code>，版本 1.3.0，最低 Android 6.0。</span></a>
+<a class="dl" href="https://github.com/WFY-1-BYO/-app/releases/download/v1.3.0/family-nutritionist-v1.3.zip"><b>family-nutritionist-v1.3.zip（约 230 KB，网页版）</b><span>含完整生产构建、一键启动脚本、使用说明。解压即用，也可部署到任意静态服务器。</span></a>
+<a class="dl" href="https://github.com/WFY-1-BYO/-app/releases/tag/v1.3.0"><b>Release 页面（两个文件都在这里）</b><span>Release <code>v1.3.0</code>，可查看更新说明与全部资产。</span></a>
 <div style="margin-top:12px">
   <a class="btn" href="https://ae94fcb1e102ad121.app.workbuddy.host/?sharecode=DGSMKKCMKQ" target="_blank">打开在线最新版</a>
   <a class="btn sec" href="https://github.com/WFY-1-BYO/-app" target="_blank">查看源码仓库</a>
 </div>
 
-<h2>二、在电脑上运行下载包</h2>
+<h2>二、安装安卓 APK（推荐）</h2>
+<ol>
+  <li>下载 <code>family-nutritionist-v1.3.0.apk</code>，用数据线、微信文件传输或网盘传到手机 / 平板。</li>
+  <li>点击安装。系统提示「未知来源应用」时，允许本次安装（文件管理器 / 浏览器来源）。</li>
+  <li>桌面出现「家庭营养师」图标，点开即用，无需联网。</li>
+  <li>首次用到语音录入会申请麦克风权限、拍照会调用系统相机，按提示允许即可。</li>
+</ol>
+<p style="font-size:13px;color:#7A807B">说明：APK 使用自签名证书。今后我要发新版时，必须用同一份证书签名才能直接覆盖安装；换证书需先卸载旧版（会清空 App 内数据，请先导出 <code>.ndm.md</code>）。</p>
+
+<h2>三、在电脑上运行网页版</h2>
 <ol>
   <li>把 zip <b>完整解压</b>到一个固定文件夹（不要只解压单个文件）。</li>
   <li>Windows 双击 <code>启动-Windows.bat</code>；macOS / Linux 运行 <code>启动-Mac-Linux.command</code>（需 Python 3）。</li>
   <li>浏览器打开 <code>http://localhost:8080</code> 即可使用。同一 WiFi 下手机 / 平板可访问启动时打印的局域网地址临时查看。</li>
 </ol>
 
-<h2>三、安装到 vivo S7 / 联想 Y900 桌面（推荐）</h2>
+<h2>四、把网页版装到 vivo S7 / 联想 Y900 桌面</h2>
 <ol>
   <li>手机 / 平板浏览器打开上方「在线最新版」的 HTTPS 地址。</li>
   <li>浏览器菜单选 <b>「添加到主屏幕」/「安装应用」</b>。</li>
@@ -58,7 +68,7 @@
 </ol>
 <p style="font-size:13px;color:#7A807B">注意：浏览器要求 HTTPS 才允许安装，局域网 http 仅供临时查看，不能安装。这是浏览器安全规则。</p>
 
-<h2>四、数据说明</h2>
+<h2>五、数据说明</h2>
 <table>
   <tr><th>项目</th><th>说明</th></tr>
   <tr><td>存储位置</td><td>只存在打开它的那个浏览器本地（IndexedDB / localStorage），不上传、不经过服务器。</td></tr>
@@ -67,23 +77,25 @@
   <tr><td>隐私</td><td>成品包与仓库均不含真实健康数据、<code>.ndm.md</code>、密钥或依赖产物。</td></tr>
 </table>
 
-<h2>五、这一版包含什么</h2>
+<h2>六、这一版包含什么</h2>
 <ul>
   <li><b>V1.2 九项改动</b>：首页极简一屏、勋章样式、运动内容全删、档案回填、参照物方案、知识日历回看、健康拍照/语音录入、AI 密钥加密存储、GitHub 版本管理。</li>
   <li><b>V1.3 双端 UI 适配</b>：手机底部三段导航 + 极简一屏；平板左侧导航栏 + 首页/记录双栏；Design Tokens 统一。</li>
   <li><b>本次交付</b>：补齐 192/512 与 maskable 安装图标、独立窗口清单、Service Worker v3 离线缓存；修复线上服务把图标误返回 HTML 的缺陷；配置 GitHub Actions 自动编译产出可下载包。</li>
+  <li><b>安卓 APK</b>：接入 Capacitor 7 生成原生工程，compileSdk 35 / minSdk 23；补齐相机、麦克风、相册权限；因 Android WebView 不支持 Web Speech API，语音录入改走系统原生识别；生成 Release 签名 APK 并上传至 Release。</li>
 </ul>
 
-<h2>六、验证情况</h2>
+<h2>七、验证情况</h2>
 <table>
   <tr><th>检查</th><th>结果</th></tr>
   <tr><td>typecheck / lint</td><td>通过，0 warning</td></tr>
-  <tr><td>单元测试</td><td>24 文件 / 134 测试全部通过</td></tr>
+  <tr><td>单元测试</td><td>25 文件 / 140 测试全部通过（新增原生语音通道用例）</td></tr>
   <tr><td>发布服务冒烟测试</td><td>11 项全部通过（图标 MIME、404、SPA 回退）</td></tr>
   <tr><td>生产构建</td><td>通过</td></tr>
   <tr><td>GitHub Actions</td><td>自动编译成功，产出可下载 Artifact 与 Release 资产</td></tr>
   <tr><td>真实浏览器双端</td><td>手机 390×844 / 平板 1280×800 全新会话建档后验证：布局、PWA 清单、图标、Service Worker 均正常，无 JS 报错</td></tr>
+  <tr><td>APK 校验</td><td>包名 / 版本 / 图标 / 权限正确；v1+v2 签名验证通过；480 个条目无损坏；语音插件类确认已打包；Release 下载件 SHA-256 与本地一致</td></tr>
 </table>
 
-<div class="foot">家庭自用 · 单用户 · 数据本地保存 ｜ 第一版为网页应用，健康分析只做趋势提示与就医提醒，不替代诊断与治疗。</div>
+<div class="foot">家庭自用 · 单用户 · 数据本地保存 ｜ 健康分析只做趋势提示与就医提醒，不替代诊断与治疗。</div>
 </div></body></html>
