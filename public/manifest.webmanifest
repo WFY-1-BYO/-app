@@ -1,17 +1,39 @@
 {
   "name": "家庭营养师",
   "short_name": "营养师",
-  "description": "基于当次食材、运动和健康记录的家庭自用营养师应用。",
+  "description": "基于当次食材、用餐记录与健康指标的家庭自用营养师应用。数据只保存在本机。",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "orientation": "any",
   "background_color": "#FAFAF7",
   "theme_color": "#708B74",
+  "lang": "zh-CN",
+  "categories": ["health", "food", "lifestyle"],
   "icons": [
     {
-      "src": "/assistant.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
       "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }
