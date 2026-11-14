@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>家庭营养师 V1.4 · 下载与安装</title>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#FAFAF7;color:#292D2A;font-family:-apple-system,"Noto Sans CJK SC","PingFang SC","Microsoft YaHei",sans-serif;line-height:1.7}
+  .wrap{max-width:860px;margin:0 auto;padding:36px 22px 70px}
+  .bar{width:52px;height:7px;background:#708B74;margin-bottom:22px;border-radius:4px}
+  h1{font-size:26px;margin:0 0 6px}
+  .sub{color:#7A807B;font-size:14px;margin-bottom:26px}
+  .tip{background:#F1F5EF;border-left:3px solid #708B74;padding:13px 16px;font-size:13.5px;color:#4A544D;border-radius:6px;margin-bottom:26px}
+  h2{font-size:18px;margin:32px 0 14px;padding-bottom:8px;border-bottom:1px solid #E4E8E2}
+  .dl{display:block;text-decoration:none;background:#fff;border:1px solid #E4E8E2;border-radius:14px;padding:18px 20px;box-shadow:0 1px 2px rgba(41,45,42,.05),0 8px 24px rgba(41,45,42,.05);margin-bottom:12px}
+  .dl b{display:block;color:#2C3A32;font-size:16px;margin-bottom:5px}
+  .dl span{color:#7A807B;font-size:12.5px;line-height:1.65}
+  .dl:hover{border-color:#708B74}
+  .btn{display:inline-block;background:#708B74;color:#fff;text-decoration:none;padding:11px 22px;border-radius:14px;font-weight:700;font-size:14px;margin:6px 8px 0 0}
+  .btn.sec{background:#fff;color:#292D2A;border:1px solid #E4E8E2}
+  ol,ul{padding-left:20px;font-size:14px}
+  li{margin:7px 0}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin:10px 0}
+  th,td{border:1px solid #E4E8E2;padding:9px 12px;text-align:left;vertical-align:top}
+  th{background:#F4F7F3;font-weight:700}
+  code{background:#EEF2EC;padding:2px 6px;border-radius:5px;font-size:12.5px}
+  .foot{margin-top:34px;color:#8C958E;font-size:12px;border-top:1px solid #E4E8E2;padding-top:14px}
+</style>
+</head>
+<body><div class="wrap">
+<div class="bar"></div>
+<h1>家庭营养师 V1.4 · 下载与安装</h1>
+<div class="sub">单人 · 双设备 · 本地存储 ｜ 最新构建 2026-11-14 ｜ 交付版本 v1.4.0</div>
+
+<div class="tip"><b>形态：</b>V1.4 同时提供<b>安卓 APK</b>与 <b>PWA 网页版</b>。APK 用 Capacitor 封装、自签名，可直接装到 vivo S7 / 联想 Y900，离线可用；网页版用在线 HTTPS 地址「添加到主屏幕」即可。两者功能一致，数据都只存在本机。</div>
+
+<h2>一、下载最新成品</h2>
+<a class="dl" href="https://github.com/WFY-1-BYO/-app/releases/download/v1.4.0/family-nutritionist-v1.4.0.apk"><b>family-nutritionist-v1.4.0.apk（约 3.5 MB，推荐）</b><span>安卓安装包，传到手机 / 平板点击安装即可。包名 <code>com.family.nutritionist</code>，版本 1.4.0，最低 Android 6.0。</span></a>
+<a class="dl" href="https://github.com/WFY-1-BYO/-app/releases/download/v1.4.0/family-nutritionist-v1.4.zip"><b>family-nutritionist-v1.4.zip（约 1 MB，网页版）</b><span>含完整生产构建、一键启动脚本、使用说明。解压即用，也可部署到任意静态服务器。</span></a>
+<a class="dl" href="https://github.com/WFY-1-BYO/-app/releases/tag/v1.4.0"><b>Release 页面（两个文件都在这里）</b><span>Release <code>v1.4.0</code>，可查看更新说明与全部资产。</span></a>
+<div style="margin-top:12px">
+  <a class="btn" href="https://ae94fcb1e102ad121.app.workbuddy.host/?sharecode=DGSMKKCMKQ" target="_blank">打开在线最新版</a>
+  <a class="btn sec" href="https://github.com/WFY-1-BYO/-app" target="_blank">查看源码仓库</a>
+</div>
+
+<h2>二、安装安卓 APK（推荐）</h2>
+<ol>
+  <li>下载 <code>family-nutritionist-v1.4.0.apk</code>，用数据线、微信文件传输或网盘传到手机 / 平板。</li>
+  <li>点击安装。系统提示「未知来源应用」时，允许本次安装（文件管理器 / 浏览器来源）。</li>
+  <li>桌面出现「家庭营养师」图标，点开即用，无需联网。</li>
+  <li>首次用到语音录入会申请麦克风权限、拍照会调用系统相机，按提示允许即可。</li>
+</ol>
+<p style="font-size:13px;color:#7A807B">说明：APK 使用自签名证书。今后我要发新版时，必须用同一份证书签名才能直接覆盖安装；换证书需先卸载旧版（会清空 App 内数据，请先导出 <code>.ndm.md</code>）。</p>
+
+<h2>三、在电脑上运行网页版</h2>
+<ol>
+  <li>把 zip <b>完整解压</b>到一个固定文件夹（不要只解压单个文件）。</li>
+  <li>Windows 双击 <code>启动-Windows.bat</code>；macOS / Linux 运行 <code>启动-Mac-Linux.command</code>（需 Python 3）。</li>
+  <li>浏览器打开 <code>http://localhost:8080</code> 即可使用。同一 WiFi 下手机 / 平板可访问启动时打印的局域网地址临时查看。</li>
+</ol>
+
+<h2>四、把网页版装到 vivo S7 / 联想 Y900 桌面</h2>
+<ol>
+  <li>手机 / 平板浏览器打开上方「在线最新版」的 HTTPS 地址。</li>
+  <li>浏览器菜单选 <b>「添加到主屏幕」/「安装应用」</b>。</li>
+  <li>桌面出现「营养师」图标，点开即全屏 App，断网也能打开。</li>
+</ol>
+<p style="font-size:13px;color:#7A807B">注意：浏览器要求 HTTPS 才允许安装，局域网 http 仅供临时查看，不能安装。这是浏览器安全规则。</p>
+
+<h2>五、数据说明</h2>
+<table>
+  <tr><th>项目</th><th>说明</th></tr>
+  <tr><td>存储位置</td><td>只存在打开它的那个浏览器本地（IndexedDB / localStorage），不上传、不经过服务器。</td></tr>
+  <tr><td>双设备同步</td><td>第一版不做云同步。用 App 内「我的 → 导入导出」导出 <code>.ndm.md</code>，在另一台设备导入合并。</td></tr>
+  <tr><td>备份</td><td>定期导出 <code>.ndm.md</code>；<b>请勿清除该浏览器的网站数据</b>，否则记录会一起丢失。</td></tr>
+  <tr><td>隐私</td><td>成品包与仓库均不含真实健康数据、<code>.ndm.md</code>、密钥或依赖产物。</td></tr>
+</table>
+
+<h2>六、V1.4 更新内容（13 项）</h2>
+<ul>
+  <li><b>档案</b>：出生日期改为「年 / 月 / 日」直接填写；日常活动水平用生活场景解释；口味支持自定义添加 / 移除。</li>
+  <li><b>配餐</b>：照片支持「拍摄 + 相册上传」双入口；手动添加食材的用量框标注「克」并给出常见参照；配餐结果可让知夏做 AI 点评。</li>
+  <li><b>记录与我的</b>：「我的」重排为档案卡 + 四项统计 + 分组入口；勋章达成时全屏播放点亮动画。</li>
+  <li><b>健康</b>：删除全部语音转文字按钮；健康文件可选择上传，文字类文件支持 DeepSeek 在线抽取指标。</li>
+  <li><b>数据</b>：导入导出显示进度、结果摘要与失败原因，坏文件如实报错。</li>
+  <li><b>体验</b>：悬浮球可自由拖动并记忆位置，每天首开自动播报今日知识；知夏头像与表情按 UI 设计文档落地；Service Worker v4。</li>
+</ul>
+
+<h2>七、验证情况</h2>
+<table>
+  <tr><th>检查</th><th>结果</th></tr>
+  <tr><td>typecheck / lint</td><td>通过，0 warning</td></tr>
+  <tr><td>单元测试</td><td>29 文件 / 167 测试全部通过（含 13 项改动逐项用例）</td></tr>
+  <tr><td>发布服务冒烟测试</td><td>11 项全部通过（图标 MIME、404、SPA 回退）</td></tr>
+  <tr><td>生产构建</td><td>通过</td></tr>
+  <tr><td>GitHub Actions</td><td>自动编译成功，产出可下载 Artifact 与 Release 资产</td></tr>
+  <tr><td>真实浏览器双端</td><td>手机 360×800 / 平板 1200×900 验证：知夏头像、悬浮球播报、勋章动画、「我的」新布局、拍摄/上传按钮、出生日期三段输入均正常，无 JS 报错</td></tr>
+  <tr><td>APK 校验</td><td>versionCode 14 / versionName 1.4.0；签名与旧版一致，可覆盖安装；语音识别插件已移除；Release 下载件 SHA-256 与本地一致（b58b7316…）</td></tr>
+</table>
+
+<div class="foot">家庭自用 · 单用户 · 数据本地保存 ｜ 健康分析只做趋势提示与就医提醒，不替代诊断与治疗。</div>
+</div></body></html>
