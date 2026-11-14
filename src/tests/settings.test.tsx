@@ -46,19 +46,19 @@ describe('改动 9：AI 密钥加密设置', () => {
 
     it('输入框为密码类型，无密钥时说明本地降级', () => {
       render(<Settings />)
-      const input = screen.getByLabelText('AI 密钥（只填一次）') as HTMLInputElement
+      const input = screen.getByLabelText('DeepSeek 密钥（只填一次）') as HTMLInputElement
       expect(input.type).toBe('password')
       expect(screen.getByText('未设置')).toBeInTheDocument()
-      expect(screen.getByText(/未填密钥时/)).toBeInTheDocument()
-      expect(screen.getByText(/接口地址已内置/)).toBeInTheDocument()
-      expect(screen.getByText(/不等同于服务端级隐藏/)).toBeInTheDocument()
+      expect(screen.getByText(/DeepSeek 暂不支持看图/)).toBeInTheDocument()
+      expect(screen.getByText(/api\.deepseek\.com/)).toBeInTheDocument()
+      expect(screen.getByText(/不要在共用设备上填入重要密钥/)).toBeInTheDocument()
     })
 
     it('保存后只显示状态、清空输入、密钥不明文落盘也不进 NDM', async () => {
       const user = userEvent.setup()
       render(<Settings />)
 
-      await user.type(screen.getByLabelText('AI 密钥（只填一次）'), secret)
+      await user.type(screen.getByLabelText('DeepSeek 密钥（只填一次）'), secret)
       await user.click(screen.getByRole('button', { name: '保存密钥' }))
 
       await waitFor(() =>
@@ -66,7 +66,7 @@ describe('改动 9：AI 密钥加密设置', () => {
       )
       const stored = useAppStore.getState().data.settings.aiKeyEncrypted!
       expect(stored).not.toContain(secret)
-      expect((screen.getByLabelText('AI 密钥（只填一次）') as HTMLInputElement).value).toBe('')
+      expect((screen.getByLabelText('DeepSeek 密钥（只填一次）') as HTMLInputElement).value).toBe('')
       expect(screen.getByText('已设置（加密保存）')).toBeInTheDocument()
       expect(screen.queryByText(secret)).not.toBeInTheDocument()
       expect(useAppStore.getState().data.settings.aiProvider).toBe('remote')
@@ -77,7 +77,7 @@ describe('改动 9：AI 密钥加密设置', () => {
       const user = userEvent.setup()
       render(<Settings />)
 
-      await user.type(screen.getByLabelText('AI 密钥（只填一次）'), secret)
+      await user.type(screen.getByLabelText('DeepSeek 密钥（只填一次）'), secret)
       await user.click(screen.getByRole('button', { name: '保存密钥' }))
       await waitFor(() =>
         expect(screen.getByRole('button', { name: '清除密钥' })).toBeInTheDocument(),

@@ -1,5 +1,6 @@
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import FloatingAssistant from './FloatingAssistant'
+import MedalCelebration from './MedalCelebration'
 import NavIcon, { type NavIconName } from './NavIcon'
 import { useIsTablet } from '../lib/breakpoint'
 
@@ -39,7 +40,7 @@ export default function AppShell() {
       {isTablet && (
         <aside className="side-nav" aria-label="侧边主导航">
           <div className="side-brand">
-            <img src="/assistant.svg" alt="" />
+            <img src="/assistant.png" alt="" />
             <div>
               <strong>家庭营养师</strong>
               <span className="muted">本地 · 单用户</span>
@@ -62,7 +63,7 @@ export default function AppShell() {
             ))}
           </nav>
           <p className="side-nav-foot">
-            v1.3 · 数据存于本机
+            v1.4 · 数据存于本机
             <br />
             NDM 可导出迁移
           </p>
@@ -99,6 +100,7 @@ export default function AppShell() {
       )}
 
       {!isFocus && <FloatingAssistant isTablet={isTablet} />}
+      <MedalCelebration />
     </div>
   )
 }

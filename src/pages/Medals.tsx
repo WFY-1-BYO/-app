@@ -153,7 +153,7 @@ export default function Medals() {
       </section>
 
       <section className="card assistant-note">
-        <img src="/assistant.svg" alt="知夏" />
+        <img src="/assistant.png" alt="知夏" />
         <div>
           <span className="bubble-from">知夏 · 勋章寄语</span>
           <p>

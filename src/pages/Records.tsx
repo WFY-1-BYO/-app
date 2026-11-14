@@ -403,7 +403,7 @@ export default function Records() {
         </section>
 
         <section className="card assistant-note">
-          <img src="/assistant.svg" alt="" />
+          <img src="/assistant.png" alt="" />
           <div>
             <span className="bubble-from">知夏 · 这天的说明</span>
             <p>

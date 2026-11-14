@@ -268,6 +268,7 @@ export function createDefaultProfile(
     allergies: input.allergies ?? [],
     avoid: input.avoid ?? [],
     tastes: input.tastes ?? [],
+    customTastes: input.customTastes ?? [],
     diseases: input.diseases ?? [],
     doctorRestrictions: input.doctorRestrictions ?? '',
     createdAt: input.createdAt ?? nowIso(),

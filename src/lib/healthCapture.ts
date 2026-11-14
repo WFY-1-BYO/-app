@@ -1,7 +1,7 @@
 import type { HealthMetric, HealthUpload, MetricType } from '../types'
 import { createId, nowIso } from './id'
 import { metricUnit } from './health'
-import { isNativeApp } from './speechNative'
+import { mapAiMetricType } from './deepseek'
 
 export type CaptureKind = HealthUpload['kind']
 
@@ -76,6 +76,32 @@ function buildMetrics(values: ParsedValue[], upload: HealthUpload): HealthMetric
   }))
 }
 
+/**
+ * 把 AI（DeepSeek）抽取出的指标转成正式记录。
+ * 映射不上的指标名会被丢弃，不猜。
+ */
+export function metricsFromAiMetrics(
+  upload: HealthUpload,
+  aiMetrics: Array<{ label: string; value: number; unit?: string }>,
+): { upload: HealthUpload; metrics: HealthMetric[] } {
+  const values: ParsedValue[] = []
+  for (const item of aiMetrics) {
+    const type = mapAiMetricType(item.label) as MetricType | null
+    if (type) values.push({ type, value: item.value })
+  }
+  if (values.length === 0) return { upload, metrics: [] }
+  const metrics = buildMetrics(values, upload)
+  return {
+    upload: {
+      ...upload,
+      status: 'recognized',
+      metricIds: metrics.map(metric => metric.id),
+      updatedAt: nowIso(),
+    },
+    metrics,
+  }
+}
+
 export interface CaptureResult {
   upload: HealthUpload
   metrics: HealthMetric[]
@@ -145,13 +171,3 @@ export function reprocessHealthUpload(upload: HealthUpload, hasKey: boolean): Ca
   }
 }
 
-/** 是否可用语音转文字：App 内走原生识别，浏览器走 Web Speech API */
-export function speechRecognitionAvailable(): boolean {
-  if (isNativeApp()) return true
-  if (typeof window === 'undefined') return false
-  const w = window as unknown as {
-    SpeechRecognition?: unknown
-    webkitSpeechRecognition?: unknown
-  }
-  return Boolean(w.SpeechRecognition || w.webkitSpeechRecognition)
-}

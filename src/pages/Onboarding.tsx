@@ -17,12 +17,42 @@ const tasteOptions: Array<{ value: Taste; label: string }> = [
   { value: 'light', label: '清淡' },
 ]
 
+/** 活动水平讲解：用生活场景解释每一档，用户不需要猜术语 */
+const activityOptions: Array<{
+  value: 'sedentary' | 'light' | 'moderate' | 'active'
+  label: string
+  detail: string
+}> = [
+  {
+    value: 'sedentary',
+    label: '久坐为主',
+    detail: '大部分时间坐着：办公室工作、在家看电视、很少走动，一周基本没有运动。',
+  },
+  {
+    value: 'light',
+    label: '轻度活动',
+    detail: '每周有 1–3 次轻度运动，比如散步、做家务、骑车通勤，日常偶尔走动。',
+  },
+  {
+    value: 'moderate',
+    label: '中等活动',
+    detail: '每周有 3–5 次中等强度运动（快走、慢跑、健身），或工作需要经常走动、站立。',
+  },
+  {
+    value: 'active',
+    label: '活动较多',
+    detail: '每周锻炼 5 次以上，或从事体力劳动（搬运、快递、工地），日常活动量很大。',
+  },
+]
+
 const diseaseOptions: Array<{ value: Disease; label: string }> = [
   { value: 'hypertension', label: '高血压' },
   { value: 'diabetes', label: '糖尿病' },
   { value: 'kidney_disease', label: '肾病' },
   { value: 'other', label: '其他' },
 ]
+
+const CURRENT_YEAR = new Date().getFullYear()
 
 export default function Onboarding() {
   const navigate = useNavigate()
@@ -32,7 +62,6 @@ export default function Onboarding() {
   const [nickname, setNickname] = useState(existing?.nickname ?? '')
   const [goal, setGoal] = useState<Goal>(existing?.goal ?? 'maintain_health')
   const [sex, setSex] = useState<'male' | 'female' | 'other' | ''>(existing?.sex ?? '')
-  const [birthDate, setBirthDate] = useState(existing?.birthDate ?? '')
   const [heightCm, setHeightCm] = useState(
     existing?.heightCm != null ? String(existing.heightCm) : '',
   )
@@ -43,6 +72,13 @@ export default function Onboarding() {
     existing?.activityLevel ?? 'light',
   )
   const [tastes, setTastes] = useState<Taste[]>(existing?.tastes ?? [])
+  const [customTastes, setCustomTastes] = useState<string[]>(existing?.customTastes ?? [])
+  const [customTasteInput, setCustomTasteInput] = useState('')
+  // 出生日期直接填年月日；已有档案时拆成三段回填
+  const existingBirth = existing?.birthDate ?? ''
+  const [birthYear, setBirthYear] = useState(existingBirth ? existingBirth.slice(0, 4) : '')
+  const [birthMonth, setBirthMonth] = useState(existingBirth ? existingBirth.slice(5, 7) : '')
+  const [birthDay, setBirthDay] = useState(existingBirth ? existingBirth.slice(8, 10) : '')
   const [allergies, setAllergies] = useState((existing?.allergies ?? []).join('、'))
   const [avoid, setAvoid] = useState((existing?.avoid ?? []).join('、'))
   const [diseases, setDiseases] = useState<Disease[]>(existing?.diseases ?? [])
@@ -51,6 +87,36 @@ export default function Onboarding() {
 
   const toggleArray = <T,>(values: T[], value: T): T[] =>
     values.includes(value) ? values.filter(item => item !== value) : [...values, value]
+
+  /** 三段生日拼成 ISO 日期；全空返回 undefined（选填），填了一部分返回 'invalid' */
+  const buildBirthDate = (): string | undefined | 'invalid' => {
+    if (!birthYear && !birthMonth && !birthDay) return undefined
+    if (!birthYear || !birthMonth || !birthDay) return 'invalid'
+    const y = Number(birthYear)
+    const m = Number(birthMonth)
+    const d = Number(birthDay)
+    const thisYear = CURRENT_YEAR
+    if (!Number.isInteger(y) || y < 1900 || y > thisYear) return 'invalid'
+    if (!Number.isInteger(m) || m < 1 || m > 12) return 'invalid'
+    const maxDay = new Date(y, m, 0).getDate()
+    if (!Number.isInteger(d) || d < 1 || d > maxDay) return 'invalid'
+    return `${String(y).padStart(4, '0')}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`
+  }
+
+  const addCustomTaste = () => {
+    const name = customTasteInput.trim()
+    if (!name) return
+    if (customTastes.includes(name)) {
+      setCustomTasteInput('')
+      return
+    }
+    setCustomTastes([...customTastes, name].slice(0, 10))
+    setCustomTasteInput('')
+  }
+
+  const removeCustomTaste = (name: string) => {
+    setCustomTastes(customTastes.filter(item => item !== name))
+  }
 
   const submit = async (event: React.FormEvent) => {
     event.preventDefault()
@@ -62,17 +128,23 @@ export default function Onboarding() {
       setError('请选择一个饮食目标。')
       return
     }
+    const birthDate = buildBirthDate()
+    if (birthDate === 'invalid') {
+      setError('出生日期的年、月、日要填完整（比如 1998 年 5 月 20 日）。')
+      return
+    }
     const profile = createDefaultProfile({
       id: existing?.id,
       createdAt: existing?.createdAt,
       nickname: nickname.trim(),
       goal,
       sex: sex || undefined,
-      birthDate: birthDate || undefined,
+      birthDate,
       heightCm: heightCm ? Number(heightCm) : undefined,
       weightKg: weightKg ? Number(weightKg) : undefined,
       activityLevel,
       tastes,
+      customTastes,
       allergies: allergies
         .split(/[,，、\s]+/)
         .map(item => item.trim())
@@ -92,6 +164,7 @@ export default function Onboarding() {
     <form
       className="card form-grid"
       onSubmit={submit}
+      noValidate
       aria-label={isEditing ? '编辑个人档案' : '创建个人档案'}
     >
       <div>
@@ -142,13 +215,49 @@ export default function Onboarding() {
       </div>
 
       <div className="form-row">
-        <label htmlFor="birthDate">出生日期</label>
-        <input
-          id="birthDate"
-          type="date"
-          value={birthDate}
-          onChange={event => setBirthDate(event.target.value)}
-        />
+        <span>出生日期</span>
+        <div className="birth-row" role="group" aria-label="出生日期">
+          <label className="birth-field">
+            <span className="muted">年</span>
+            <input
+              aria-label="出生年份"
+              type="number"
+              inputMode="numeric"
+              placeholder="1998"
+              min="1900"
+              max={CURRENT_YEAR}
+              value={birthYear}
+              onChange={event => setBirthYear(event.target.value)}
+            />
+          </label>
+          <label className="birth-field">
+            <span className="muted">月</span>
+            <input
+              aria-label="出生月份"
+              type="number"
+              inputMode="numeric"
+              placeholder="5"
+              min="1"
+              max="12"
+              value={birthMonth}
+              onChange={event => setBirthMonth(event.target.value)}
+            />
+          </label>
+          <label className="birth-field">
+            <span className="muted">日</span>
+            <input
+              aria-label="出生日期（日）"
+              type="number"
+              inputMode="numeric"
+              placeholder="20"
+              min="1"
+              max="31"
+              value={birthDay}
+              onChange={event => setBirthDay(event.target.value)}
+            />
+          </label>
+        </div>
+        <p className="muted">直接填数字就行，比如 1998 年 5 月 20 日；不填也可以。</p>
       </div>
 
       <div className="form-row">
@@ -176,17 +285,24 @@ export default function Onboarding() {
       </div>
 
       <div className="form-row">
-        <label htmlFor="activity">日常活动水平</label>
-        <select
-          id="activity"
-          value={activityLevel}
-          onChange={event => setActivityLevel(event.target.value as typeof activityLevel)}
-        >
-          <option value="sedentary">久坐为主</option>
-          <option value="light">轻度活动</option>
-          <option value="moderate">中等活动</option>
-          <option value="active">活动较多</option>
-        </select>
+        <span>日常活动水平</span>
+        <div className="chip-group" role="group" aria-label="日常活动水平">
+          {activityOptions.map(option => (
+            <button
+              type="button"
+              key={option.value}
+              className={`chip ${activityLevel === option.value ? 'active' : ''}`}
+              aria-pressed={activityLevel === option.value}
+              onClick={() => setActivityLevel(option.value)}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+        <p className="muted">
+          {activityOptions.find(option => option.value === activityLevel)?.detail}
+        </p>
+        <p className="muted">不确定就往低选：选低了建议更保守，不会让你吃超。</p>
       </div>
 
       <div className="form-row">
@@ -202,7 +318,37 @@ export default function Onboarding() {
               {option.label}
             </button>
           ))}
+          {customTastes.map(name => (
+            <button
+              type="button"
+              key={name}
+              className="chip active custom-chip"
+              aria-label={`移除自定义口味 ${name}`}
+              title="点一下移除"
+              onClick={() => removeCustomTaste(name)}
+            >
+              {name} ×
+            </button>
+          ))}
         </div>
+        <div className="row custom-taste-row">
+          <input
+            aria-label="自定义口味"
+            placeholder="其他口味？自己加一个，比如：不吃香菜、爱喝汤"
+            value={customTasteInput}
+            onChange={event => setCustomTasteInput(event.target.value)}
+            onKeyDown={event => {
+              if (event.key === 'Enter') {
+                event.preventDefault()
+                addCustomTaste()
+              }
+            }}
+          />
+          <button type="button" className="button small secondary" onClick={addCustomTaste}>
+            添加口味
+          </button>
+        </div>
+        <p className="muted">预设不够用就自己加；添加后点一下标签可以移除。</p>
       </div>
 
       <div className="form-row">

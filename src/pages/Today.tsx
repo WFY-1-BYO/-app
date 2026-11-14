@@ -106,7 +106,7 @@ export default function Today() {
 
   const knowledgeBubble = (
     <section className="card knowledge-bubble" aria-label="营养师说">
-      <img src="/assistant.svg" alt="知夏" className="bubble-avatar" />
+      <img src="/assistant.png" alt="知夏" className="bubble-avatar" />
       <div className="bubble-body">
         <span className="bubble-from">知夏 · 今日知识</span>
         <p className="bubble-text">{knowledge.summary}</p>

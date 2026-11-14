@@ -181,7 +181,7 @@ describe('功能九：悬浮角色、勋章与奖励', () => {
     const user = userEvent.setup()
     render(<FloatingAssistant message="今天也要好好吃饭。" />)
 
-    const assistant = screen.getByRole('button', { name: '营养师助手' })
+    const assistant = screen.getByRole('button', { name: '营养师助手知夏' })
     expect(assistant).toBeInTheDocument()
     await user.click(assistant)
     expect(screen.getByRole('status')).toHaveTextContent('今天也要好好吃饭。')
@@ -209,6 +209,6 @@ describe('功能九：悬浮角色、勋章与奖励', () => {
       </MemoryRouter>,
     )
     expect(screen.getByText('拍照配餐')).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: '营养师助手' })).toBeNull()
+    expect(screen.queryByRole('button', { name: '营养师助手知夏' })).toBeNull()
   })
 })

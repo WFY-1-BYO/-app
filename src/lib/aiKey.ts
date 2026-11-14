@@ -1,10 +1,10 @@
 import type { AppSettings } from '../types'
 
 /**
- * 内置在线识别接口地址：用户无需填写，界面也不展示。
- * 更换服务商时只需改这一处常量。
+ * 内置在线识别接口地址（DeepSeek，OpenAI 兼容协议）：用户无需填写，界面也不展示。
+ * 更换服务商时只需改这一处常量，调用实现见 lib/deepseek.ts。
  */
-export const AI_ENDPOINT = 'https://api.openai.com/v1/chat/completions'
+export const AI_ENDPOINT = 'https://api.deepseek.com/chat/completions'
 
 const SEAL_TAG = 'ndmseal1'
 const SEAL_SALT = 'family-nutritionist-local-seal-v1'

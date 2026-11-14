@@ -1,18 +1,19 @@
 import { useEffect, useRef, useState } from 'react'
 import { useAppStore } from '../store/appStore'
-import { createId, dateKey, formatDate, nowIso } from '../lib/id'
+import { createId, formatDate, nowIso } from '../lib/id'
 import { analyzeMetric, metricLabels, metricUnit } from '../lib/health'
 import { parseHealthCsv } from '../lib/healthImport'
 import {
   captureKindLabels,
   createHealthUpload,
   hasAiKey,
+  metricsFromAiMetrics,
   reprocessHealthUpload,
-  speechRecognitionAvailable,
   uploadStatusLabels,
 } from '../lib/healthCapture'
-import { isNativeApp, startNativeSpeech } from '../lib/speechNative'
-import type { CaptureKind, CaptureResult } from '../lib/healthCapture'
+import { extractHealthMetricsWithAI } from '../lib/deepseek'
+import PhotoCapture from '../components/PhotoCapture'
+import type { CaptureKind } from '../lib/healthCapture'
 import type { HealthMetric, MetricType } from '../types'
 
 const metricOptions: MetricType[] = [
@@ -25,14 +26,6 @@ const metricOptions: MetricType[] = [
   'hdl',
   'weight',
 ]
-
-interface SpeechRecognitionLike {
-  lang: string
-  onresult:
-    | ((event: { results: ArrayLike<ArrayLike<{ transcript: string }>> }) => void)
-    | null
-  start: () => void
-}
 
 export default function Health() {
   const data = useAppStore(state => state.data)
@@ -47,12 +40,11 @@ export default function Health() {
   const [error, setError] = useState('')
   const [importMessage, setImportMessage] = useState('')
   const [captureMessage, setCaptureMessage] = useState('')
-  const [voiceText, setVoiceText] = useState('')
+  const [busyUpload, setBusyUpload] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
 
   const keyReady = hasAiKey(data.settings)
   const pendingUploads = data.healthUploads.filter(item => item.status !== 'recognized')
-  const speechSupported = speechRecognitionAvailable()
 
   // 填入密钥后自动重试同一份留档，不需要用户重新上传
   useEffect(() => {
@@ -78,75 +70,46 @@ export default function Health() {
     }
   }, [keyReady, data.healthUploads])
 
-  const commitCapture = async (result: CaptureResult) => {
-    await addHealthUpload(result.upload)
-    for (const metric of result.metrics) {
-      await addHealthMetric(metric)
-    }
-    setCaptureMessage(
-      result.upload.status === 'recognized'
-        ? `已识别 ${result.metrics.length} 项指标，可在下方历史趋势查看。`
-        : '已留档并标记「待识别」。填入 AI 密钥后会自动重新识别，不需要重新上传。',
-    )
-  }
-
   const handleFile = async (kind: CaptureKind, file: File | undefined) => {
     if (!file) return
-    await commitCapture(
-      createHealthUpload({ kind, fileName: file.name, hasKey: keyReady }),
-    )
-  }
-
-  const startSpeech = async () => {
-    if (!speechSupported) return
-    // App 内没有 Web Speech API，改走系统原生识别
-    if (isNativeApp()) {
-      try {
+    setBusyUpload(true)
+    setCaptureMessage('')
+    try {
+      const base = createHealthUpload({ kind, fileName: file.name, hasKey: keyReady })
+      let result = base
+      // 填了密钥且是文字类文件时，先交给 DeepSeek 在线识别一次
+      const textLike =
+        /\.(txt|csv|md)$/i.test(file.name) || file.type.startsWith('text/')
+      if (!base.upload.status || base.upload.status !== 'recognized') {
+        if (keyReady && textLike) {
+          try {
+            const reportText = await file.text()
+            const aiMetrics = await extractHealthMetricsWithAI(data.settings, reportText)
+            const aiResult = metricsFromAiMetrics(base.upload, aiMetrics)
+            if (aiResult.metrics.length > 0) result = aiResult
+          } catch (aiError) {
+            setCaptureMessage(
+              aiError instanceof Error
+                ? `在线识别没成功：${aiError.message} 已先按本地规则留档。`
+                : '在线识别没成功，已先按本地规则留档。',
+            )
+          }
+        }
+      }
+      await addHealthUpload(result.upload)
+      for (const metric of result.metrics) {
+        await addHealthMetric(metric)
+      }
+      if (!captureMessage) {
         setCaptureMessage(
-          '正在听取，请直接说指标和数值，例如「血压 128 82」。识别结果会填到上方，由你确认后再保存。',
-        )
-        await startNativeSpeech(text => setVoiceText(text))
-      } catch (error) {
-        setCaptureMessage(
-          error instanceof Error
-            ? error.message
-            : '语音识别没能启动，可以直接粘贴文字或上传录音文件。',
+          result.upload.status === 'recognized'
+            ? `已识别 ${result.metrics.length} 项指标，可在下方历史趋势查看。`
+            : '已留档并标记「待识别」。纯图片和 PDF 暂时只留档；文字类文件填入 AI 密钥后可在线识别。',
         )
       }
-      return
+    } finally {
+      setBusyUpload(false)
     }
-    const w = window as unknown as {
-      SpeechRecognition?: new () => SpeechRecognitionLike
-      webkitSpeechRecognition?: new () => SpeechRecognitionLike
-    }
-    const Ctor = w.SpeechRecognition ?? w.webkitSpeechRecognition
-    if (!Ctor) return
-    const recognition = new Ctor()
-    recognition.lang = 'zh-CN'
-    recognition.onresult = event => {
-      const text = Array.from(event.results)
-        .map(row => row[0]?.transcript ?? '')
-        .join('')
-      setVoiceText(text)
-    }
-    recognition.start()
-  }
-
-  const saveVoice = async () => {
-    const text = voiceText.trim()
-    if (!text) {
-      setCaptureMessage('请先填写或粘贴语音转文字内容。')
-      return
-    }
-    await commitCapture(
-      createHealthUpload({
-        kind: 'voice',
-        fileName: `语音记录-${dateKey(new Date())}.txt`,
-        rawText: text,
-        hasKey: keyReady,
-      }),
-    )
-    setVoiceText('')
   }
 
   const submit = async (event: React.FormEvent) => {
@@ -207,7 +170,7 @@ export default function Health() {
       <section className="card">
         <h1 className="section-title">健康指标</h1>
         <p className="muted">
-          优先用拍照、语音转文字或文件上传提交血压、血糖、血脂等数据，手动录入只作兜底。App
+          优先用拍照或文件上传提交血压、血糖、血脂等数据，手动录入只作兜底。App
           只提供趋势和饮食建议，不会替代医生诊断。
         </p>
         <div className="row" style={{ marginTop: 12 }}>
@@ -226,69 +189,36 @@ export default function Health() {
         </div>
       </section>
 
-      <section className="card stack" aria-label="拍照、语音与文件上传">
-        <h2 className="section-title">拍照 / 语音 / 文件上传</h2>
+      <section className="card stack" aria-label="拍照与文件上传">
+        <h2 className="section-title">拍照 / 文件上传</h2>
         <p className="muted">
-          除了个人信息，其他数据尽量以拍照或文件形式提交；附件只按文件名关联，不会把图片或录音塞进导出文档。
+          血压计读数、化验单、体检报告都可以拍照或上传文件提交；附件只按文件名关联，不会把图片塞进导出文档。
         </p>
 
         <div className="form-row">
-          <label htmlFor="health-photo">拍照（血压计、化验单、体检报告）</label>
-          <input
-            id="health-photo"
-            type="file"
-            accept="image/*"
-            capture="environment"
-            onChange={event => void handleFile('photo', event.target.files?.[0])}
+          <span>拍照（血压计、化验单、体检报告）</span>
+          <PhotoCapture
+            label="健康数据照片"
+            hint="拍一张，或从相册上传。"
+            disabled={busyUpload}
+            onFile={file => handleFile('photo', file)}
           />
         </div>
 
         <div className="form-row">
-          <label htmlFor="health-file">上传文件（照片、PDF、CSV、文本）</label>
-          <input
-            id="health-file"
-            type="file"
+          <span>上传文件（照片、PDF、CSV、文本）</span>
+          <PhotoCapture
+            label="健康数据文件"
+            hint="从文件里选择，支持照片、PDF、CSV 和文本。"
             accept="image/*,.pdf,.csv,text/*"
-            onChange={event => void handleFile('file', event.target.files?.[0])}
+            allowCamera={false}
+            uploadLabel="选择文件"
+            disabled={busyUpload}
+            onFile={file => handleFile('file', file)}
           />
         </div>
 
-        <div className="form-row">
-          <label htmlFor="health-voice">语音转文字内容</label>
-          <textarea
-            id="health-voice"
-            rows={2}
-            value={voiceText}
-            onChange={event => setVoiceText(event.target.value)}
-            placeholder="例如：今天早上收缩压 120，舒张压 78，空腹血糖 5.4"
-          />
-        </div>
-
-        <div className="row">
-          <button
-            type="button"
-            className="button small secondary"
-            disabled={!speechSupported}
-            onClick={() => void startSpeech()}
-          >
-            开始语音转文字
-          </button>
-          <button type="button" className="button small" onClick={() => void saveVoice()}>
-            保存语音记录
-          </button>
-          <input
-            id="health-voice-file"
-            type="file"
-            accept="audio/*"
-            aria-label="上传语音文件"
-            onChange={event => void handleFile('voice', event.target.files?.[0])}
-          />
-        </div>
-        <p className="muted">
-          {speechSupported
-            ? '点「开始语音转文字」可以直接说出数值，系统会把转写结果填到上方，由你确认后再留档。'
-            : '当前环境不支持语音转文字：可以直接上传录音文件，或把转写内容粘贴到上方再保存。'}
-        </p>
+        {busyUpload && <p className="muted">正在识别文件，请稍等……</p>}
         {captureMessage && <p className="muted">{captureMessage}</p>}
       </section>
 

@@ -48,7 +48,7 @@ describe('PWA 可安装配置（下载版与在线版共用）', () => {
 
   it('service worker 升级缓存版本并预缓存 App 壳与全部图标', () => {
     const sw = read('sw.js')
-    expect(sw).toContain('family-nutritionist-v3')
+    expect(sw).toContain('family-nutritionist-v4')
     expect(sw).toContain('manifest.webmanifest')
     expect(sw).toContain('icon-192.png')
     expect(sw).toContain('icon-maskable-512.png')

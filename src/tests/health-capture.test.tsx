@@ -9,7 +9,6 @@ import {
   hasAiKey,
   recognizeHealthText,
   reprocessHealthUpload,
-  speechRecognitionAvailable,
 } from '../lib/healthCapture'
 import type { HealthUpload } from '../types'
 
@@ -18,7 +17,7 @@ const withKey = (key?: string) => ({
   aiKeyEncrypted: key,
 })
 
-describe('改动 8：健康数据拍照 / 语音 / 文件录入', () => {
+describe('V1.4：健康数据拍照 / 文件录入', () => {
   describe('留档与识别逻辑', () => {
     it('未填密钥时只留档待识别，不产生假指标', () => {
       expect(hasAiKey(withKey())).toBe(false)
@@ -73,11 +72,10 @@ describe('改动 8：健康数据拍照 / 语音 / 文件录入', () => {
       expect(none.metrics.length).toBe(0)
     })
 
-    it('语音转文字可从文本提取指标，浏览器能力可判断', () => {
+    it('本地规则仍能从文件名提取指标（无密钥降级路径）', () => {
       expect(recognizeHealthText('收缩压 120 舒张压 78').map(item => item.value)).toEqual([
         120, 78,
       ])
-      expect(typeof speechRecognitionAvailable()).toBe('boolean')
     })
   })
 
@@ -116,19 +114,15 @@ describe('改动 8：健康数据拍照 / 语音 / 文件录入', () => {
       useAppStore.setState({ data: structuredClone(emptyAppData), initialized: true })
     })
 
-    it('无密钥时上传显示待识别留档，并给出语音能力降级提示', async () => {
+    it('无密钥时上传显示待识别留档，不假装已识别', async () => {
       const user = userEvent.setup()
       render(<Health />)
 
-      const supported = speechRecognitionAvailable()
-      expect(
-        screen.getByText(
-          supported ? /点「开始语音转文字」/ : /当前环境不支持语音转文字/,
-        ),
-      ).toBeInTheDocument()
+      // 语音转文字按钮已按 V1.4 要求全部移除
+      expect(screen.queryByText(/语音转文字/)).not.toBeInTheDocument()
 
       const file = new File(['x'], '收缩压120.jpg', { type: 'image/jpeg' })
-      await user.upload(screen.getByLabelText('拍照（血压计、化验单、体检报告）'), file)
+      await user.upload(screen.getByLabelText('健康数据照片：拍摄'), file)
 
       await waitFor(() =>
         expect(useAppStore.getState().data.healthUploads.length).toBe(1),
@@ -143,7 +137,7 @@ describe('改动 8：健康数据拍照 / 语音 / 文件录入', () => {
       render(<Health />)
 
       const file = new File(['x'], '收缩压120.jpg', { type: 'image/jpeg' })
-      await user.upload(screen.getByLabelText('拍照（血压计、化验单、体检报告）'), file)
+      await user.upload(screen.getByLabelText('健康数据照片：拍摄'), file)
       await waitFor(() =>
         expect(useAppStore.getState().data.healthUploads.length).toBe(1),
       )

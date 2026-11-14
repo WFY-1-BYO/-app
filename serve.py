@@ -143,7 +143,8 @@ class Handler(BaseHTTPRequestHandler):
         # 否则浏览器会把 index.html 当图片解析，导致「添加到主屏幕」图标损坏。
         static_files = (
             '/manifest.webmanifest', '/sw.js',
-            '/assistant.svg', '/favicon.svg', '/icons.svg',
+            '/assistant.png', '/favicon-192.png',
+            '/zhixia-cheer.png', '/zhixia-study.png', '/zhixia-worry.png',
             '/icon-192.png', '/icon-512.png',
             '/icon-maskable-192.png', '/icon-maskable-512.png',
         )

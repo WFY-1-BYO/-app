@@ -50,6 +50,8 @@ export interface Profile {
   allergies: string[]
   avoid: string[]
   tastes: Taste[]
+  /** 用户自定义的口味标签（在预设之外自己添加） */
+  customTastes?: string[]
   diseases: Disease[]
   doctorRestrictions: string
   createdAt: string
@@ -213,6 +215,8 @@ export interface AppSettings {
   aiProvider: 'local' | 'remote'
   vivoHealthAuthorized: boolean
   notificationsEnabled: boolean
+  /** 悬浮球上次播报今日知识的日期（YYYY-MM-DD），每天只主动开口一次 */
+  lastKnowledgePushDate?: string
   /** 加密后的 AI 密钥（改动 9 写入）；前端不明文回显 */
   aiKeyEncrypted?: string
 }

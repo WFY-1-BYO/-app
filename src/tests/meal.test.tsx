@@ -169,7 +169,7 @@ describe('功能一：当次食材配餐', () => {
 
     await user.click(screen.getByRole('button', { name: '晚餐' }))
     await user.type(screen.getByLabelText('食材名称'), '米饭')
-    await user.type(screen.getByLabelText('用量'), '150')
+    await user.type(screen.getByLabelText('用量，单位克'), '150')
     await user.click(screen.getByRole('button', { name: '添加食材' }))
     await user.type(screen.getByLabelText('食材名称'), '鸡胸肉')
     await user.click(screen.getByRole('button', { name: '添加食材' }))

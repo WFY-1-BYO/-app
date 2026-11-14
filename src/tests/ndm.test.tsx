@@ -208,6 +208,6 @@ describe('功能十：本地保存与 NDM 导入导出', () => {
     })
     expect(useAppStore.getState().data.mealSessions.length).toBe(1)
     expect(screen.getByText(/导入完成/)).toBeInTheDocument()
-    expect(screen.getByText(/新增：/)).toBeInTheDocument()
+    expect(screen.getAllByText(/新增 \d+ 条/).length).toBeGreaterThan(0)
   })
 })

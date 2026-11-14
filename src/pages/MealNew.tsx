@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import PhotoCapture from '../components/PhotoCapture'
 import { useAppStore } from '../store/appStore'
 import { createMealSession } from '../lib/mealPlanner'
 import { createManualIngredient, recognizeIngredientsFromFile } from '../lib/ai'
@@ -34,7 +35,6 @@ export default function MealNew() {
   const [newName, setNewName] = useState('')
   const [newAmount, setNewAmount] = useState('100')
   const [error, setError] = useState('')
-  const fileInputRef = useRef<HTMLInputElement>(null)
   const selectedFileRef = useRef<File | null>(null)
 
   const option = getReferenceOption(referenceKind)
@@ -43,16 +43,6 @@ export default function MealNew() {
     const result = await recognizeIngredientsFromFile(file, kind)
     setIngredients(result.ingredients)
     setRecognitionNote(result.note)
-  }
-
-  const onFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const selected = event.target.files?.[0]
-    if (!selected) return
-    selectedFileRef.current = selected
-    setPreviewUrl(
-      typeof URL.createObjectURL === 'function' ? URL.createObjectURL(selected) : null,
-    )
-    await applyRecognition(selected, referenceKind)
   }
 
   const onReferenceChange = async (next: ReferenceKind) => {
@@ -189,14 +179,19 @@ export default function MealNew() {
         </div>
 
         <div className="form-row">
-          <label htmlFor="meal-photo">当次食材照片</label>
-          <input
-            id="meal-photo"
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            capture="environment"
-            onChange={onFileChange}
+          <span>当次食材照片</span>
+          <PhotoCapture
+            label="食材照片"
+            hint="拍一张，或从相册上传；参照物和食材要在同一张照片里。"
+            onFile={async file => {
+              selectedFileRef.current = file
+              setPreviewUrl(
+                typeof URL.createObjectURL === 'function'
+                  ? URL.createObjectURL(file)
+                  : null,
+              )
+              await applyRecognition(file, referenceKind)
+            }}
           />
         </div>
 
@@ -321,25 +316,33 @@ export default function MealNew() {
           </div>
         )}
 
-        <div className="row">
-          <input
-            aria-label="食材名称"
-            placeholder="食材名称"
-            value={newName}
-            onChange={event => setNewName(event.target.value)}
-          />
-          <input
-            aria-label="用量"
-            type="number"
-            min="1"
-            value={newAmount}
-            onChange={event => setNewAmount(event.target.value)}
-            style={{ width: 100 }}
-          />
+        <div className="manual-add-row">
+          <label className="manual-add-field">
+            <span>食材名称</span>
+            <input
+              aria-label="食材名称"
+              placeholder="例如：西红柿"
+              value={newName}
+              onChange={event => setNewName(event.target.value)}
+            />
+          </label>
+          <label className="manual-add-field manual-add-amount">
+            <span>用量（克）</span>
+            <input
+              aria-label="用量，单位克"
+              type="number"
+              min="1"
+              value={newAmount}
+              onChange={event => setNewAmount(event.target.value)}
+            />
+          </label>
           <button type="button" className="button secondary" onClick={addIngredient}>
             添加食材
           </button>
         </div>
+        <p className="muted manual-add-note">
+          用量按生重（还没有煮之前的重量）填写，单位是克；一杯米饭约 200 克、一个鸡蛋约 50 克，拿不准可以先填估计值，之后还能改。
+        </p>
 
         {error && <p style={{ color: 'var(--notice-ink)', margin: 0 }}>{error}</p>}
 
@@ -355,7 +358,6 @@ export default function MealNew() {
               setPreviewUrl(null)
               setRecognitionNote('')
               selectedFileRef.current = null
-              if (fileInputRef.current) fileInputRef.current.value = ''
             }}
           >
             重新开始

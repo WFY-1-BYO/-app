@@ -19,7 +19,7 @@ export default function Settings() {
     const sealed = await sealKey(plain)
     await updateSettings({ aiKeyEncrypted: sealed, aiProvider: 'remote' })
     setKeyInput('')
-    setMessage('密钥已加密保存到本机，界面不会回显。在线识别已启用。')
+    setMessage('密钥已加密保存到本机，界面不会回显。DeepSeek 在线功能已启用。')
   }
 
   const clearKey = async () => {
@@ -49,7 +49,7 @@ export default function Settings() {
         </div>
 
         <div className="form-row">
-          <label htmlFor="ai-provider">AI 提供器</label>
+          <label htmlFor="ai-provider">AI 接口</label>
           <select
             id="ai-provider"
             value={settings.aiProvider}
@@ -60,10 +60,11 @@ export default function Settings() {
             }
           >
             <option value="local">本地离线规则</option>
-            <option value="remote">内置在线接口</option>
+            <option value="remote">DeepSeek 在线接口</option>
           </select>
           <p className="muted">
-            第一版默认使用本地规则，断网时功能仍可用。填入密钥后自动切到内置在线接口。
+            默认走本地规则，断网时功能仍可用。填入 DeepSeek
+            密钥后自动切到在线接口，AI 负责健康报告解读和配餐点评。
           </p>
         </div>
 
@@ -93,8 +94,12 @@ export default function Settings() {
       </section>
 
       <section className="card form-grid" aria-label="AI 密钥设置">
-        <h2 className="section-title">AI 密钥</h2>
-        <p className="muted">接口地址已内置，你只需要填一次密钥。</p>
+        <h2 className="section-title">DeepSeek 密钥</h2>
+        <p className="muted">
+          接口已内置（api.deepseek.com），你只需要在 DeepSeek
+          开放平台创建密钥后填一次。填好后：健康报告文字可在线识别，配餐结果可让知夏做 AI
+          解读。
+        </p>
 
         <div className="form-row">
           <span>当前状态</span>
@@ -102,14 +107,14 @@ export default function Settings() {
         </div>
 
         <div className="form-row">
-          <label htmlFor="ai-key">AI 密钥（只填一次）</label>
+          <label htmlFor="ai-key">DeepSeek 密钥（只填一次）</label>
           <input
             id="ai-key"
             type="password"
             autoComplete="off"
             value={keyInput}
             onChange={event => setKeyInput(event.target.value)}
-            placeholder={keyReady ? '已设置；如需更换，直接输入新密钥' : '粘贴你的密钥'}
+            placeholder={keyReady ? '已设置；如需更换，直接输入新密钥' : '粘贴你的密钥（sk- 开头）'}
           />
         </div>
 
@@ -127,11 +132,8 @@ export default function Settings() {
 
         <div className="key-disclaimer">
           <p className="muted">
-            未填密钥时，配餐识别和健康数据留档都走本地规则，App 不会报错或卡住；填入后自动启用在线识别，之前标记「待识别」的留档也会自动重试，不需要重新上传。
-          </p>
-          <p className="muted">
-            如实说明：这是纯前端的加密存储，密钥不会在界面明文回显，也不会写进导出的 NDM
-            文档；但纯前端方案下，密钥仍可能被从本机代码或存储中提取，不等同于服务端级隐藏。请不要在共用设备上填入重要密钥。
+            如实说明：食材照片识别走本地几何估算（DeepSeek 暂不支持看图），不依赖密钥；AI
+            只处理文字（报告解读、配餐点评）。密钥加密保存到本机，不回显、不写进导出文档；但纯前端方案下仍可能被从本机提取，请不要在共用设备上填入重要密钥。
           </p>
         </div>
       </section>

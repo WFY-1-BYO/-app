@@ -179,7 +179,7 @@ describe('改动 6：参照物方案', () => {
       await user.click(screen.getByRole('button', { name: '没有参照物' }))
 
       const file = new File(['x'], '米饭.jpg', { type: 'image/jpeg' })
-      await user.upload(screen.getByLabelText('当次食材照片'), file)
+      await user.upload(screen.getByLabelText('食材照片：上传'), file)
 
       await waitFor(() => expect(screen.getByText('需确认')).toBeInTheDocument())
       expect(screen.getByText(/只识别品类与份数/)).toBeInTheDocument()

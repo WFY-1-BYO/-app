@@ -1,14 +1,16 @@
 // 缓存版本：改动静态资源、图标或清单时务必升级，避免旧缓存顶住新版页面。
-const CACHE_NAME = 'family-nutritionist-v3'
+const CACHE_NAME = 'family-nutritionist-v4'
 
 // 安装时预缓存 App 壳。带 hash 的构建产物由运行时缓存补齐（联网打开一次后即可离线）。
 const ASSETS = [
   '/',
   '/index.html',
   '/manifest.webmanifest',
-  '/assistant.svg',
-  '/favicon.svg',
-  '/icons.svg',
+  '/assistant.png',
+  '/favicon-192.png',
+  '/zhixia-cheer.png',
+  '/zhixia-study.png',
+  '/zhixia-worry.png',
   '/icon-192.png',
   '/icon-512.png',
   '/icon-maskable-192.png',

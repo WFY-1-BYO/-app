@@ -1225,3 +1225,361 @@ button.chip {
     scroll-behavior: auto !important;
   }
 }
+
+/* ===== V1.4 新增 ===== */
+
+/* 悬浮球：可自由拖动 */
+.assistant {
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.assistant.assistant-dragging {
+  transition: none;
+  box-shadow: 0 12px 28px rgba(41, 45, 42, 0.24);
+  transform: scale(1.06);
+}
+
+.assistant:not(.assistant-dragging) {
+  transition: transform 0.15s ease;
+}
+
+/* 拍摄 / 上传双按钮 */
+.capture-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.capture-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.capture-buttons .button {
+  min-height: 48px;
+  flex: 1 1 140px;
+  border-radius: 14px;
+}
+
+.capture-camera {
+  background: var(--primary);
+  color: #fff;
+}
+
+.capture-hint {
+  margin: 0;
+}
+
+.visually-hidden-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* 出生日期三段输入 */
+.birth-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+}
+
+.birth-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.birth-field span {
+  font-size: var(--fs-hint);
+}
+
+.birth-field input {
+  width: 100%;
+}
+
+/* 手动添加食材行 */
+.manual-add-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.manual-add-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1 1 160px;
+}
+
+.manual-add-field span {
+  font-size: var(--fs-hint);
+  color: var(--muted);
+}
+
+.manual-add-amount {
+  flex: 0 1 140px;
+}
+
+.manual-add-note {
+  margin: 0;
+}
+
+/* 口味自定义 */
+.custom-taste-row {
+  margin-top: 8px;
+}
+
+.custom-taste-row input {
+  flex: 1;
+}
+
+.custom-chip::after {
+  content: '';
+}
+
+/* 我的页面 */
+.mine-page {
+  gap: 14px;
+}
+
+.mine-profile {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+
+.mine-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 4px 12px rgba(41, 45, 42, 0.12);
+}
+
+.mine-profile-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.mine-profile-body p {
+  margin: 4px 0 0;
+}
+
+.mine-edit {
+  flex-shrink: 0;
+}
+
+.mine-group .mine-links {
+  display: flex;
+  flex-direction: column;
+}
+
+.mine-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 13px 4px;
+  border-bottom: 1px solid var(--border);
+  text-decoration: none;
+  color: var(--text);
+  min-height: 44px;
+}
+
+.mine-link:last-child {
+  border-bottom: none;
+}
+
+.mine-link-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mine-link-main strong {
+  font-size: var(--fs-body);
+}
+
+.mine-link-main .muted {
+  font-size: var(--fs-hint);
+}
+
+.mine-link-arrow {
+  color: var(--muted);
+  font-size: 20px;
+}
+
+.mine-group .muted {
+  margin: 4px 0 8px;
+}
+
+/* 导入导出反馈 */
+.feedback {
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-size: var(--fs-body);
+  line-height: 1.5;
+}
+
+.feedback-success {
+  background: var(--primary-soft);
+  color: var(--primary-strong);
+}
+
+.feedback-error {
+  background: #f3efe9;
+  color: var(--notice-ink);
+}
+
+.feedback-info {
+  background: #f5f4ef;
+  color: var(--muted);
+}
+
+.export-result {
+  margin: 0;
+}
+
+/* 勋章点亮全屏动画 */
+.medal-celebration {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(41, 45, 42, 0.45);
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  animation: celebration-fade 0.4s ease;
+}
+
+.medal-celebration-card {
+  position: relative;
+  background: #fff;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  box-shadow: 0 20px 60px rgba(41, 45, 42, 0.3);
+  padding: 32px 28px;
+  max-width: 340px;
+  width: 100%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+  animation: celebration-pop 0.55s cubic-bezier(0.22, 1.4, 0.4, 1);
+}
+
+.medal-celebration-glow {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  width: 180px;
+  height: 180px;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(231, 165, 111, 0.35) 0%, rgba(231, 165, 111, 0) 70%);
+  animation: celebration-glow 2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.medal-celebration-avatar {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  box-shadow: 0 6px 18px rgba(41, 45, 42, 0.18);
+}
+
+.medal-celebration-medal {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 30px;
+  color: #fff;
+  background: linear-gradient(145deg, #e7a56f, #d18f52);
+  border: 3px solid #fff;
+  box-shadow: 0 6px 18px rgba(231, 165, 111, 0.45);
+  animation: medal-shine 1.6s ease-in-out infinite;
+}
+
+.medal-celebration-title {
+  margin: 0;
+  font-size: var(--fs-title);
+  color: var(--accent);
+}
+
+.medal-celebration-name {
+  font-size: var(--fs-card-title);
+}
+
+.medal-celebration-condition {
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--fs-body);
+}
+
+.medal-celebration-note {
+  margin: 0;
+}
+
+@keyframes celebration-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes celebration-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.6) translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes celebration-glow {
+  0%,
+  100% {
+    opacity: 0.7;
+    transform: translateX(-50%) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1.15);
+  }
+}
+
+@keyframes medal-shine {
+  0%,
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    transform: scale(1.08) rotate(6deg);
+  }
+}
+
+/* AI 解读块 */
+.ai-note {
+  border: 1px solid var(--border);
+}
+
+.ai-text {
+  margin: 0;
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
