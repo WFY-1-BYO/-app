@@ -965,3 +965,63 @@ textarea {
   line-height: 1.7;
 }
 
+/* ===== V1.3 改编 B：首页平板双栏（图 14） ===== */
+.today-page.tablet-today {
+  max-width: none;
+  margin: 0;
+  grid-template-columns: minmax(0, 1.6fr) minmax(280px, 0.9fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.today-main,
+.today-side {
+  min-width: 0;
+}
+
+.today-meals {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.today-meal-chip {
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+
+.meal-state {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.meal-state.done {
+  color: var(--primary-strong);
+}
+
+.health-big {
+  font-size: 28px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  margin: 8px 0 4px;
+}
+
+.health-big .muted {
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.health-note {
+  font-size: 12px;
+}
+
+@media (max-width: 899px) {
+  .today-page.tablet-today {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
