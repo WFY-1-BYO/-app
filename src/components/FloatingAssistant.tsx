@@ -3,8 +3,10 @@ import { useAppStore } from '../store/appStore'
 
 export default function FloatingAssistant({
   message = '今天也要好好吃饭，不用追求完美。',
+  isTablet = false,
 }: {
   message?: string
+  isTablet?: boolean
 }) {
   const settings = useAppStore(state => state.data.settings)
   const updateSettings = useAppStore(state => state.updateSettings)
@@ -34,8 +36,18 @@ export default function FloatingAssistant({
     const deltaX = event.clientX - startRef.current.x
     const deltaY = event.clientY - startRef.current.y
     if (Math.abs(deltaX) > 3 || Math.abs(deltaY) > 3) movedRef.current = true
-    const nextX = Math.max(8, Math.min(window.innerWidth - 64, startRef.current.left + deltaX))
-    const nextY = Math.max(8, Math.min(window.innerHeight - 72, startRef.current.top + deltaY))
+    // 平板左侧有固定导航栏，手机底部有三段导航，悬浮球吸附区分别避开
+    const size = isTablet ? 64 : 56
+    const minX = isTablet ? 248 : 8
+    const bottomInset = isTablet ? 24 : 96
+    const nextX = Math.max(
+      minX,
+      Math.min(window.innerWidth - size - 8, startRef.current.left + deltaX),
+    )
+    const nextY = Math.max(
+      8,
+      Math.min(window.innerHeight - size - bottomInset, startRef.current.top + deltaY),
+    )
     setPosition({ x: nextX, y: nextY })
   }
 
@@ -52,7 +64,7 @@ export default function FloatingAssistant({
     <>
       <button
         type="button"
-        className="assistant"
+        className={`assistant ${isTablet ? 'assistant-tablet' : ''}`}
         aria-label="营养师助手"
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
