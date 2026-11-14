@@ -16,6 +16,8 @@ export default function FloatingAssistant({
   const startRef = useRef({ x: 0, y: 0, left: 0, top: 0 })
   const movedRef = useRef(false)
 
+  const hasCustomPosition = position.x >= 0 && position.y >= 0
+
   if (!settings.assistantEnabled) return null
 
   const onPointerDown = (event: React.PointerEvent<HTMLButtonElement>) => {
@@ -69,7 +71,11 @@ export default function FloatingAssistant({
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
-        style={{ left: position.x, top: position.y, right: 'auto', bottom: 'auto' }}
+        style={
+          hasCustomPosition
+            ? { left: position.x, top: position.y, right: 'auto', bottom: 'auto' }
+            : undefined
+        }
       >
         <img src="/assistant.svg" alt="" />
       </button>

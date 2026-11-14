@@ -686,7 +686,13 @@ textarea {
   font-size: 15px;
 }
 
+.side-brand > div {
+  flex: 1;
+  min-width: 0;
+}
+
 .side-brand .muted {
+  display: block;
   font-size: 11px;
 }
 
@@ -742,6 +748,17 @@ textarea {
 .assistant.assistant-tablet {
   width: 64px;
   height: 64px;
+}
+
+/* 平板没有底部三段导航，未自定义停靠时悬浮球与气泡贴右下角 */
+.app-shell.tablet-layout .assistant {
+  right: 32px;
+  bottom: 32px;
+}
+
+.app-shell.tablet-layout .assistant-bubble {
+  right: 116px;
+  bottom: 40px;
 }
 
 @media (max-width: 899px) {
@@ -1147,6 +1164,8 @@ textarea {
   border-radius: 4px 4px 0 0;
   overflow: hidden;
   min-height: 6px;
+  /* 无记录的日期保留中性浅柱（漏记日只是中性格），不让图表整块空白 */
+  background: var(--border);
 }
 
 .seg {

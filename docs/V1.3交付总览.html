@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>家庭自用营养师 App · V1.3 双端 UI 适配交付总览</title>
+<style>
+  :root{--bg:#FAFAF7;--card:#fff;--primary:#708B74;--strong:#5D7A62;--soft:#E8F0E9;--text:#292D2A;--muted:#7A807B;--border:#E4E8E2;--accent:#E7A56F}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:14px;line-height:1.6;padding:32px 20px 64px}
+  .wrap{max-width:1060px;margin:0 auto}
+  h1{font-size:22px;margin:0 0 6px}
+  h2{font-size:16px;margin:28px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+  .sub{color:var(--muted);font-size:12px;margin:0 0 24px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:0 1px 2px rgba(41,45,42,.04),0 8px 24px rgba(41,45,42,.05);padding:16px;margin-bottom:16px}
+  .ok{display:inline-flex;align-items:center;gap:8px;background:var(--soft);color:var(--strong);border-radius:999px;padding:6px 14px;font-weight:700;font-size:12px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--border);vertical-align:top}
+  th{color:var(--muted);font-weight:600;font-size:12px;white-space:nowrap}
+  tr:last-child td{border-bottom:none}
+  .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+  figure{margin:0;background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+  figure img{width:100%;display:block;background:#fff}
+  figcaption{padding:10px 14px;font-size:12px;color:var(--muted);border-top:1px solid var(--border)}
+  .pill{display:inline-block;background:var(--soft);color:var(--strong);border-radius:999px;padding:2px 10px;font-size:11px;margin-right:6px}
+  .note{background:#FFF8F1;border-color:var(--accent)}
+  code{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:1px 6px;font-size:12px}
+  ul{margin:6px 0;padding-left:20px}
+  .shots{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+  @media(max-width:720px){.grid,.shots{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>家庭自用营养师 App · V1.3 双端 UI 适配</h1>
+  <p class="sub">依据《UI 设计方案 V1.1（含界面图）》图 1 / 图 2 / 图 14 / 图 15 ｜ 2026-11-14 ｜ 仓库 <code>WFY-1-BYO/-app</code> · 分支 <code>main</code></p>
+
+  <div class="card">
+    <span class="ok">✓ 全部改动完成并通过全量回归</span>
+    <p style="margin:12px 0 0">
+      手机（vivo S7）保持 V1.2 已确认的<strong>极简一屏</strong>；平板（Lenovo Y900）按文档补齐<strong>左侧导航栏 + 首页双栏 + 记录双栏</strong>。运动相关内容继续按 V1.2「全删干净」不实现。
+    </p>
+  </div>
+
+  <h2>四项改编</h2>
+  <div class="card">
+    <table>
+      <thead><tr><th>改编</th><th>内容</th><th>依据</th></tr></thead>
+      <tbody>
+        <tr><td>A 导航</td><td>≥900px 渲染左侧固定导航栏（品牌、三入口带副标题、选中浅绿底、底部版本说明）；手机仍为底部三段导航。emoji 换为 24dp 线性 SVG 图标，悬浮球吸附区避开导航与主按钮。</td><td>图 2 / 图 14</td></tr>
+        <tr><td>B 首页</td><td>平板主栏：日期目标 + 下一餐卡片 + 唯一 56dp 主 CTA + 今天三餐状态；副栏：营养师说 + 坚持进度 + 健康指标摘要（只做趋势参考、提示就医，不诊断）。手机首页不新增任何下滑内容。</td><td>图 14</td></tr>
+        <tr><td>C 记录</td><td>平板左栏：四项坚持统计 + 饮食/健康/勋章分类 + 可点选历史列表；右栏：供能环（中心总能量、图例带克数与百分比）+ 四态判定 + 知夏说明 + 近 14 天堆叠柱。手机保持单列。</td><td>图 15</td></tr>
+        <tr><td>D 规范</td><td>6 色色板（移除红色失败色）、字阶变量、卡片圆角 16 / 双层轻阴影 / 内边距 16、次按钮白底描边、触控目标 ≥44dp、悬浮球 56dp/64dp、供能环收敛到色板、<code>prefers-reduced-motion</code> 降级。</td><td>图 1</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>真实浏览器双端截图</h2>
+  <div class="shots">
+    <figure><img src="V1.3双端界面截图/手机_今天.png" alt="手机首页"><figcaption>vivo S7 · 今天：极简一屏，底部三段导航，悬浮球停靠右下</figcaption></figure>
+    <figure><img src="V1.3双端界面截图/平板_今天.png" alt="平板首页"><figcaption>Y900 · 今天：左侧导航 + 主栏配餐主线 / 副栏知识·坚持·健康</figcaption></figure>
+    <figure><img src="V1.3双端界面截图/手机_记录.png" alt="手机记录"><figcaption>vivo S7 · 记录：单列，原有统计与入口完整保留</figcaption></figure>
+    <figure><img src="V1.3双端界面截图/平板_记录.png" alt="平板记录"><figcaption>Y900 · 记录：左历史列表 / 右单日详情与近 14 天趋势</figcaption></figure>
+  </div>
+
+  <h2>测试与验证</h2>
+  <div class="grid">
+    <div class="card">
+      <table>
+        <tbody>
+          <tr><th>typecheck</th><td>通过</td></tr>
+          <tr><th>lint</th><td>0 warning / 0 error（68 文件、116 规则）</td></tr>
+          <tr><th>单测</th><td><strong>23 文件 / 128 测试全部通过</strong></td></tr>
+          <tr><th>build</th><td>通过</td></tr>
+          <tr><th>异常警告</th><td>0 条</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <p style="margin:0 0 8px"><span class="pill">浏览器实测</span>Chromium 全新会话建档后逐项核对 DOM：</p>
+      <ul>
+        <li>手机：底部导航 ✓ / 无侧栏 ✓ / 唯一主 CTA ✓ / 无三餐状态 ✓</li>
+        <li>平板：左侧导航 ✓ / 无底部导航 ✓ / 主副栏 ✓ / 14 根趋势柱 ✓</li>
+        <li>两端均无「运动」字样，页面无 JS 报错</li>
+        <li>已修：悬浮球默认压住页头、空趋势图整块空白、无记录日出现批评式文案</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>提交纪律</h2>
+  <div class="card">
+    <p style="margin:0 0 8px">每个改编后单独执行 <code>typecheck → lint → test → build</code>，通过即 <code>commit + push</code>；全部改完后再跑一次全量回归。远程 <code>main</code> 与本地一致，工作区干净。</p>
+    <p style="margin:0;color:var(--muted);font-size:12px">仓库只含源码、文档与界面截图，不含健康数据、<code>.ndm.md</code> 数据文件、密钥或附件。</p>
+  </div>
+
+  <h2>边界与待确认</h2>
+  <div class="card note">
+    <ul>
+      <li>本轮只改<strong>双端布局与视觉规范</strong>，配餐、NDM、健康上传、AI 密钥等既有业务逻辑未改动。</li>
+      <li>图 14/15 中的「今日运动」「运动记录」「运动」分类按 V1.2 决策继续不实现。</li>
+      <li>立绘与九组表情仍是设计稿参考，第一版沿用静态头像 <code>/assistant.svg</code>，未引入 Live2D / 语音。</li>
+      <li><strong>线上 App 仍是 V1.1</strong>：V1.2 + V1.3 代码已在 GitHub，但公网链接未覆盖；重新构建发布需用户单独授权。</li>
+    </ul>
+  </div>
+</div>
+</body>
+</html>

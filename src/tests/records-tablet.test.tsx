@@ -133,6 +133,25 @@ describe('V1.3 记录页平板双栏（图 15）', () => {
     expect(container.querySelector('.records-left')!.textContent).toContain('点亮')
   })
 
+  it('无记录日只给温和说明，不出现批评式能量提示', () => {
+    stubMedia(true)
+    useAppStore.setState({
+      data: {
+        ...structuredClone(emptyAppData),
+        profile: createDefaultProfile({ nickname: '测试用户', goal: 'maintain_health' }),
+      },
+      initialized: true,
+    })
+    render(
+      <MemoryRouter>
+        <Records />
+      </MemoryRouter>,
+    )
+    const note = screen.getByText('知夏 · 这天的说明').parentElement!.textContent ?? ''
+    expect(note).toContain('先按自己的节奏来就好')
+    expect(note).not.toContain('偏低')
+  })
+
   it('手机仍是单列，保留原有统计与入口', () => {
     stubMedia(false)
     const { container } = setup()

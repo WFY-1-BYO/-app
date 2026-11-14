@@ -51,7 +51,9 @@ export default function Records() {
       )
     : null
   const dayOffPlan = selectedLogs.filter(log => log.isOffPlan).length
-  const isBalanced = evaluation?.level === 'good' || evaluation?.level === 'acceptable'
+  const isBalanced =
+    selectedLogs.length > 0 &&
+    (evaluation?.level === 'good' || evaluation?.level === 'acceptable')
   const base = new Date(`${today}T00:00:00`)
   const trend = Array.from({ length: 14 }, (_, index) => {
     const date = new Date(base)
@@ -405,9 +407,9 @@ export default function Records() {
           <div>
             <span className="bubble-from">知夏 · 这天的说明</span>
             <p>
-              {evaluation
+              {selectedLogs.length > 0 && evaluation
                 ? evaluation.message
-                : '还没有记录可以说明，先按自己的节奏来就好。'}
+                : '这一天还没有记录可以说明，先按自己的节奏来就好。'}
             </p>
             <p className="muted">
               计划外的一次不改变你已经累计的坚持，下一餐正常回归就好。
@@ -421,7 +423,7 @@ export default function Records() {
             {trend.map(item => {
               const { carbsRatio, proteinRatio, fatRatio, calories } = item.summary
               const total = Math.max(1, carbsRatio + proteinRatio + fatRatio)
-              const height = Math.max(6, Math.round((calories / maxTrendCalories) * 100))
+              const height = Math.max(12, Math.round((calories / maxTrendCalories) * 100))
               return (
                 <div
                   className="trend-col"

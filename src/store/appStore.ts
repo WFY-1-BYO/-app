@@ -18,7 +18,8 @@ import { initialKnowledge } from '../lib/knowledge'
 
 const defaultSettings: AppSettings = {
   assistantEnabled: true,
-  assistantPosition: { x: 24, y: 24 },
+  // 负值表示「未自定义停靠」，由 CSS 默认停在右下并避开导航；拖动后保存真实坐标
+  assistantPosition: { x: -1, y: -1 },
   aiProvider: 'local',
   vivoHealthAuthorized: false,
   notificationsEnabled: true,

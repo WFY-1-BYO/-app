@@ -3,6 +3,8 @@ import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { render } from '@testing-library/react'
 import NutritionPie from '../components/NutritionPie'
+import FloatingAssistant from '../components/FloatingAssistant'
+import { emptyAppData, useAppStore } from '../store/appStore'
 import type { NutritionSummary } from '../types'
 
 const css = readFileSync(resolve(process.cwd(), 'src/styles/app.css'), 'utf8')
@@ -89,5 +91,22 @@ describe('V1.3 Design Tokens 统一（图 1）', () => {
     }
     expect(container.textContent).toContain('548')
     expect(container.textContent).toContain('碳水 44%（60g）')
+  })
+
+  it('悬浮球默认停靠由 CSS 控制，不写死左上角坐标压住页头', () => {
+    expect(emptyAppData.settings.assistantPosition.x).toBeLessThan(0)
+    expect(css).toMatch(/\.assistant\s*\{[^}]*right:\s*20px/)
+    expect(css).toMatch(
+      /\.app-shell\.tablet-layout \.assistant\s*\{[^}]*right:\s*32px/,
+    )
+    useAppStore.setState({
+      data: structuredClone(emptyAppData),
+      initialized: true,
+    })
+    const { container } = render(<FloatingAssistant />)
+    const button = container.querySelector('.assistant') as HTMLElement
+    expect(button).not.toBeNull()
+    expect(button.style.left).toBe('')
+    expect(button.style.top).toBe('')
   })
 })
