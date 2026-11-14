@@ -1,0 +1,9 @@
+{
+  "appId": "com.family.nutritionist",
+  "appName": "家庭营养师",
+  "webDir": "dist",
+  "android": {
+    "allowMixedContent": false,
+    "webContentsDebuggingEnabled": false
+  }
+}

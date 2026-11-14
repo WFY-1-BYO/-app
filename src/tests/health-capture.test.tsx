@@ -123,7 +123,7 @@ describe('改动 8：健康数据拍照 / 语音 / 文件录入', () => {
       const supported = speechRecognitionAvailable()
       expect(
         screen.getByText(
-          supported ? /点「开始语音转文字」/ : /当前浏览器不支持语音转文字/,
+          supported ? /点「开始语音转文字」/ : /当前环境不支持语音转文字/,
         ),
       ).toBeInTheDocument()
 

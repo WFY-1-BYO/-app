@@ -13,6 +13,9 @@
     "typecheck": "tsc -b --pretty false"
   },
   "dependencies": {
+    "@capacitor-community/speech-recognition": "^7.0.1",
+    "@capacitor/android": "^7.6.10",
+    "@capacitor/core": "^7.6.10",
     "dayjs": "^1.11.23",
     "idb": "^8.0.4",
     "jszip": "^3.10.2",
@@ -22,6 +25,8 @@
     "zustand": "^5.1.0"
   },
   "devDependencies": {
+    "@capacitor/assets": "^4.0.0",
+    "@capacitor/cli": "^7.6.10",
     "@playwright/test": "^1.65.0",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",

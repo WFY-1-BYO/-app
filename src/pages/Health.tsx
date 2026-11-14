@@ -11,6 +11,7 @@ import {
   speechRecognitionAvailable,
   uploadStatusLabels,
 } from '../lib/healthCapture'
+import { isNativeApp, startNativeSpeech } from '../lib/speechNative'
 import type { CaptureKind, CaptureResult } from '../lib/healthCapture'
 import type { HealthMetric, MetricType } from '../types'
 
@@ -96,8 +97,24 @@ export default function Health() {
     )
   }
 
-  const startSpeech = () => {
+  const startSpeech = async () => {
     if (!speechSupported) return
+    // App 内没有 Web Speech API，改走系统原生识别
+    if (isNativeApp()) {
+      try {
+        setCaptureMessage(
+          '正在听取，请直接说指标和数值，例如「血压 128 82」。识别结果会填到上方，由你确认后再保存。',
+        )
+        await startNativeSpeech(text => setVoiceText(text))
+      } catch (error) {
+        setCaptureMessage(
+          error instanceof Error
+            ? error.message
+            : '语音识别没能启动，可以直接粘贴文字或上传录音文件。',
+        )
+      }
+      return
+    }
     const w = window as unknown as {
       SpeechRecognition?: new () => SpeechRecognitionLike
       webkitSpeechRecognition?: new () => SpeechRecognitionLike
@@ -252,7 +269,7 @@ export default function Health() {
             type="button"
             className="button small secondary"
             disabled={!speechSupported}
-            onClick={startSpeech}
+            onClick={() => void startSpeech()}
           >
             开始语音转文字
           </button>
@@ -270,7 +287,7 @@ export default function Health() {
         <p className="muted">
           {speechSupported
             ? '点「开始语音转文字」可以直接说出数值，系统会把转写结果填到上方，由你确认后再留档。'
-            : '当前浏览器不支持语音转文字：可以直接上传录音文件，或把转写内容粘贴到上方再保存。'}
+            : '当前环境不支持语音转文字：可以直接上传录音文件，或把转写内容粘贴到上方再保存。'}
         </p>
         {captureMessage && <p className="muted">{captureMessage}</p>}
       </section>

@@ -30,9 +30,23 @@ dist-package/
 .env.*
 *.key
 *.pem
+*.keystore
+*.jks
 secrets/
 # 真实个人数据文件绝不入库
 *.ndm.md
 *.csv
 attachments/
 uploads/
+
+# Android 构建产物与本地 SDK 路径
+android/.gradle/
+android/app/build/
+android/build/
+android/local.properties
+android/app/src/main/assets/public/
+android/app/src/main/assets/capacitor.config.json
+android/app/src/main/assets/capacitor.plugins.json
+*.apk
+*.aab
+

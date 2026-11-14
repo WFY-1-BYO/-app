@@ -1,6 +1,7 @@
 import type { HealthMetric, HealthUpload, MetricType } from '../types'
 import { createId, nowIso } from './id'
 import { metricUnit } from './health'
+import { isNativeApp } from './speechNative'
 
 export type CaptureKind = HealthUpload['kind']
 
@@ -144,8 +145,9 @@ export function reprocessHealthUpload(upload: HealthUpload, hasKey: boolean): Ca
   }
 }
 
-/** 浏览器是否原生支持语音转文字；不支持时页面给出降级提示 */
+/** 是否可用语音转文字：App 内走原生识别，浏览器走 Web Speech API */
 export function speechRecognitionAvailable(): boolean {
+  if (isNativeApp()) return true
   if (typeof window === 'undefined') return false
   const w = window as unknown as {
     SpeechRecognition?: unknown
