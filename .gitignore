@@ -10,6 +10,8 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+# 本地打包出的可下载 zip 由 GitHub Actions / Release 生成，不入库
+dist-package/
 *.local
 
 # Editor directories and files

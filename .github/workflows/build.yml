@@ -1,0 +1,90 @@
+name: 编译并打包可下载成品
+
+# 每次推送 / PR / 手动点击「Run workflow」都会完整编译一次；
+# 打 v* 版本标签时额外自动创建 GitHub Release 并附上可下载的 zip。
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    name: 类型检查 · Lint · 测试 · 构建 · 打包
+    runs-on: ubuntu-latest
+    env:
+      APP_VERSION: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || 'V1.3' }}
+    steps:
+      - name: 拉取源码
+        uses: actions/checkout@v4
+
+      - name: 安装 pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.28.2
+
+      - name: 安装 Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: pnpm
+
+      - name: 安装依赖（锁定 lockfile）
+        run: pnpm install --frozen-lockfile
+
+      - name: 类型检查
+        run: pnpm typecheck
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: 单元测试
+        run: pnpm test
+
+      - name: 生产构建
+        run: pnpm build
+
+      - name: 打包可下载成品
+        run: python3 scripts/package.py
+
+      - name: 上传可下载成品（Actions 产物）
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-package
+          path: 'dist-package/*.zip'
+          if-no-files-found: error
+          retention-days: 90
+
+  release:
+    name: 发布 Release（仅版本标签）
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+      - name: 取回编译好的成品包
+        uses: actions/download-artifact@v4
+        with:
+          name: app-package
+          path: dist-package
+
+      - name: 创建 Release 并附上 zip
+        uses: softprops/action-gh-release@v2
+        with:
+          files: 'dist-package/*.zip'
+          generate_release_notes: true
+          body: |
+            ## 家庭营养师 · Web 应用成品包
+
+            这是 **PWA 网页应用**，不是安卓 APK 安装包。
+
+            解压后用「启动」脚本在本机起一个本地服务，浏览器打开即可使用；
+            同一 WiFi 下手机 / 平板也能访问说明里列出的局域网地址。
+            若想「安装到桌面」当 App 用，请使用在线 HTTPS 地址在浏览器中
+            选择「添加到主屏幕」。
+
+            数据全部保存在浏览器本地，不会上传；换设备请用 App 内的 NDM 导入导出。
