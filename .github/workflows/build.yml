@@ -49,6 +49,9 @@ jobs:
       - name: 生产构建
         run: pnpm build
 
+      - name: 发布服务冒烟测试（PWA 图标 / MIME / 路由）
+        run: python3 scripts/test_serve.py
+
       - name: 打包可下载成品
         run: python3 scripts/package.py
 

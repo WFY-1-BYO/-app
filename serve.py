@@ -5,10 +5,11 @@ from glob import glob
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse, unquote
 
-WORKSPACE = '/workspace'
-DIST = '/workspace/family-nutritionist/dist'
-PAGES = '/root/.codebuddy/artifact/pdf_preview'
-PDF = '/workspace/家庭自用营养师App_产品需求文档_V1.1.pdf'
+WORKSPACE = os.environ.get('APP_WORKSPACE', '/workspace')
+# 允许 CI / 本地冒烟测试把 dist 指到别处，不影响线上发布默认路径
+DIST = os.environ.get('APP_DIST', '/workspace/family-nutritionist/dist')
+PAGES = os.environ.get('APP_PAGES', '/root/.codebuddy/artifact/pdf_preview')
+PDF = os.environ.get('APP_PDF', '/workspace/家庭自用营养师App_产品需求文档_V1.1.pdf')
 
 page_files = sorted(glob(os.path.join(PAGES, 'p-*.png')))
 
@@ -90,6 +91,17 @@ class Handler(BaseHTTPRequestHandler):
         except (BrokenPipeError, ConnectionResetError):
             pass
 
+    def not_found(self):
+        body = b'Not found'
+        self.send_response(404)
+        self.send_header('Content-Type', 'text/plain; charset=utf-8')
+        self.send_header('Content-Length', str(len(body)))
+        self.end_headers()
+        try:
+            self.wfile.write(body)
+        except (BrokenPipeError, ConnectionResetError):
+            pass
+
     def file(self, path, ctype, disposition=None):
         if not os.path.isfile(path):
             self.send(b'Not found', 'text/plain; charset=utf-8')
@@ -127,10 +139,26 @@ class Handler(BaseHTTPRequestHandler):
                       'application/javascript' if name.endswith('.js')
                       else 'text/css' if name.endswith('.css') else 'application/octet-stream')
             return
-        if path in ('/manifest.webmanifest', '/sw.js', '/assistant.svg', '/favicon.svg', '/icons.svg'):
-            ctype = ('application/manifest+json' if path.endswith('webmanifest')
-                     else 'application/javascript' if path.endswith('.js') else 'image/svg+xml')
+        # PWA 静态资源（含安装图标）：必须按真实类型返回，不能落进 SPA 的 HTML 兜底，
+        # 否则浏览器会把 index.html 当图片解析，导致「添加到主屏幕」图标损坏。
+        static_files = (
+            '/manifest.webmanifest', '/sw.js',
+            '/assistant.svg', '/favicon.svg', '/icons.svg',
+            '/icon-192.png', '/icon-512.png',
+            '/icon-maskable-192.png', '/icon-maskable-512.png',
+        )
+        if path in static_files:
+            ctype = {
+                'webmanifest': 'application/manifest+json',
+                'js': 'application/javascript',
+                'svg': 'image/svg+xml',
+                'png': 'image/png',
+            }.get(path.rsplit('.', 1)[-1], 'application/octet-stream')
             self.file(os.path.join(DIST, path.lstrip('/')), ctype)
+            return
+        # 带扩展名却不在白名单里的静态资源应如实 404，避免被误当成页面返回 HTML
+        if '.' in path.rsplit('/', 1)[-1]:
+            self.not_found()
             return
         # SPA：根路径与所有应用内路由均返回 index.html
         if path == '/' or path == '/app-preview' or path.startswith('/app-preview/') or not path.startswith('/overview'):
