@@ -1,7 +1,7 @@
-name: 编译并打包可下载成品
+name: 编译并打包（Web + APK）
 
-# 每次推送 / PR / 手动点击「Run workflow」都会完整编译一次；
-# 打 v* 版本标签时额外自动创建 GitHub Release 并附上可下载的 zip。
+# 每次推送 / PR / 手动触发都会完整编译一次；
+# 打 v* 版本标签时额外自动创建 GitHub Release，并附上 Web 成品包与安卓 APK 安装包。
 on:
   push:
     branches: [main]
@@ -14,11 +14,11 @@ permissions:
   contents: write
 
 jobs:
-  verify:
-    name: 类型检查 · Lint · 测试 · 构建 · 打包
+  web:
+    name: 类型检查 · Lint · 测试 · Web 构建 · 打包
     runs-on: ubuntu-latest
     env:
-      APP_VERSION: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || 'V1.3' }}
+      APP_VERSION: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || 'V1.5' }}
     steps:
       - name: 拉取源码
         uses: actions/checkout@v4
@@ -63,31 +63,109 @@ jobs:
           if-no-files-found: error
           retention-days: 90
 
+  android:
+    name: 构建安卓 APK 安装包
+    runs-on: ubuntu-latest
+    steps:
+      - name: 拉取源码
+        uses: actions/checkout@v4
+
+      - name: 安装 pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.28.2
+
+      - name: 安装 Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: pnpm
+
+      - name: 安装 JDK 17（AGP 8.7 所需）
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: 安装 Android SDK（cmdline-tools）
+        run: |
+          mkdir -p "$HOME/android-sdk/cmdline-tools"
+          curl -fsSL -o /tmp/cmdtools.zip https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+          unzip -q /tmp/cmdtools.zip -d "$HOME/android-sdk/cmdline-tools"
+          mv "$HOME/android-sdk/cmdline-tools/cmdline-tools" "$HOME/android-sdk/cmdline-tools/latest"
+          echo "ANDROID_HOME=$HOME/android-sdk" >> "$GITHUB_ENV"
+          echo "$HOME/android-sdk/cmdline-tools/latest/bin" >> "$GITHUB_PATH"
+
+      - name: 安装 SDK 组件并同意许可
+        run: |
+          sdkmanager "platforms;android-35" "build-tools;35.0.0" "platform-tools"
+          yes | sdkmanager --licenses
+
+      - name: 安装依赖（锁定 lockfile）
+        run: pnpm install --frozen-lockfile
+
+      - name: 生产构建
+        run: pnpm build
+
+      - name: 同步 Capacitor 安卓工程（拷贝 Web 资源 + 生成插件目录）
+        run: npx cap sync android
+
+      - name: 生成签名密钥（仅本次构建使用，不入库）
+        run: |
+          mkdir -p android/keystore
+          keytool -genkey -v \
+            -keystore android/keystore/release.keystore \
+            -keyalg RSA -keysize 2048 -validity 10000 \
+            -alias nutritionist \
+            -storepass FamilyNutritionist2026 \
+            -keypass FamilyNutritionist2026 \
+            -dname "CN=Family Nutritionist"
+
+      - name: 构建 Release APK
+        run: |
+          cd android
+          chmod +x ./gradlew
+          ./gradlew assembleRelease --no-daemon
+
+      - name: 上传 APK 产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk
+          path: 'android/app/build/outputs/apk/release/app-release.apk'
+          if-no-files-found: error
+          retention-days: 90
+
   release:
     name: 发布 Release（仅版本标签）
     if: startsWith(github.ref, 'refs/tags/v')
-    needs: verify
+    needs: [web, android]
     runs-on: ubuntu-latest
     steps:
-      - name: 取回编译好的成品包
+      - name: 取回 Web 成品包
         uses: actions/download-artifact@v4
         with:
           name: app-package
           path: dist-package
 
-      - name: 创建 Release 并附上 zip
+      - name: 取回 APK 安装包
+        uses: actions/download-artifact@v4
+        with:
+          name: android-apk
+          path: android-apk
+
+      - name: 创建 Release 并附上安装包
         uses: softprops/action-gh-release@v2
         with:
-          files: 'dist-package/*.zip'
+          files: |
+            dist-package/*.zip
+            android-apk/app-release.apk
           generate_release_notes: true
           body: |
-            ## 家庭营养师 · Web 应用成品包
+            ## 家庭营养师 · 安装包（V1.5.0）
 
-            这是 **PWA 网页应用**，不是安卓 APK 安装包。
+            - **安卓 APK** `app-release.apk`：下载后允许「未知来源 / 安装未知应用」即可安装使用。数据全部保存在本机，不会上传。
+            - **Web 成品包** `*.zip`：解压后用「启动」脚本在本机起服务，浏览器打开即用；也可「添加到主屏幕」当作 App。
 
-            解压后用「启动」脚本在本机起一个本地服务，浏览器打开即可使用；
-            同一 WiFi 下手机 / 平板也能访问说明里列出的局域网地址。
-            若想「安装到桌面」当 App 用，请使用在线 HTTPS 地址在浏览器中
-            选择「添加到主屏幕」。
+            > 安装新版时若提示「签名冲突 / 安装失败」，请先卸载旧版再装（家庭自用，安装包签名由每次构建生成）。
 
-            数据全部保存在浏览器本地，不会上传；换设备请用 App 内的 NDM 导入导出。
+            **拍照识别**：需先在 App「设置」中填入 DeepSeek 密钥（密钥只在你本机保存，不随安装包分发、不进代码仓库）。

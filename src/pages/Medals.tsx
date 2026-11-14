@@ -12,7 +12,7 @@ const groupLabels: Record<MedalGroup, string> = {
 }
 
 const rewardSuggestions = [
-  { name: '适量奶茶', description: '可以喝一杯，不用把它变成新的负担。' },
+  { name: '一杯喜欢的饮品', description: '可以喝一杯，不用把它变成新的负担。' },
   { name: '看一部电影', description: '给自己一点放松时间。' },
   { name: '买一本书', description: '把奖励和成长放在一起。' },
   { name: '好好休息一晚', description: '睡眠也是健康的一部分。' },

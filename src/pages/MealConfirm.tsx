@@ -118,7 +118,7 @@ export default function MealConfirm() {
           rows={3}
           value={note}
           onChange={event => setNote(event.target.value)}
-          placeholder="例如：在肯德基吃了套餐，下一餐正常回归"
+          placeholder="例如：偶尔吃了计划外食物，下一餐正常回归"
         />
       </div>
 

@@ -166,15 +166,15 @@ describe('功能九：悬浮角色、勋章与奖励', () => {
     )
 
     expect(screen.getByText('三十日烟火')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: '适量奶茶' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '一杯喜欢的饮品' })).toBeInTheDocument()
 
     const user = userEvent.setup()
-    await user.click(screen.getByRole('button', { name: '适量奶茶' }))
+    await user.click(screen.getByRole('button', { name: '一杯喜欢的饮品' }))
 
     await waitFor(() => {
       expect(useAppStore.getState().data.rewards.length).toBe(1)
     })
-    expect(useAppStore.getState().data.rewards[0].name).toBe('适量奶茶')
+    expect(useAppStore.getState().data.rewards[0].name).toBe('一杯喜欢的饮品')
   })
 
   it('悬浮角色可以点击展开提示气泡', async () => {

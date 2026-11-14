@@ -69,7 +69,7 @@ describe('功能八：计划外饮食的人性化处理', () => {
     )
 
     await user.clear(screen.getByLabelText('想吃的食物'))
-    await user.type(screen.getByLabelText('想吃的食物'), '肯德基套餐')
+    await user.type(screen.getByLabelText('想吃的食物'), '一份外卖')
     await user.click(screen.getByRole('button', { name: '偶尔正常吃' }))
     await user.click(screen.getByRole('button', { name: '记录这次选择' }))
 
@@ -79,7 +79,7 @@ describe('功能八：计划外饮食的人性化处理', () => {
 
     const log = useAppStore.getState().data.mealLogs[2]
     expect(log.isOffPlan).toBe(true)
-    expect(log.items[0]?.name).toBe('肯德基套餐')
+    expect(log.items[0]?.name).toBe('一份外卖')
 
     const streak = computeStreak(useAppStore.getState().data.mealLogs)
     expect(streak.totalDays).toBeGreaterThanOrEqual(3)
@@ -94,6 +94,7 @@ describe('功能八：计划外饮食的人性化处理', () => {
     )
 
     await user.click(screen.getByRole('button', { name: '少量或调整搭配' }))
+    await user.type(screen.getByLabelText('想吃的食物'), '一份外卖')
     await user.click(screen.getByRole('button', { name: '记录这次选择' }))
 
     await waitFor(() => {

@@ -37,7 +37,7 @@ export default function OffPlan() {
   const navigate = useNavigate()
   const data = useAppStore(state => state.data)
   const addMealLog = useAppStore(state => state.addMealLog)
-  const [foodName, setFoodName] = useState('肯德基套餐')
+  const [foodName, setFoodName] = useState('')
   const [mealType, setMealType] = useState<MealType>('lunch')
   const [choice, setChoice] = useState<Choice>('normal')
   const [amount, setAmount] = useState('1')

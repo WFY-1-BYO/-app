@@ -251,7 +251,7 @@ describe('功能一：当次食材配餐', () => {
 
     renderMealRoutes(`/meal/${session.id}/confirm`)
     await userEvent.click(screen.getByLabelText(/计划外饮食/))
-    await userEvent.type(screen.getByLabelText('备注'), '吃了肯德基套餐')
+    await userEvent.type(screen.getByLabelText('备注'), '吃了一顿计划外餐食')
     await userEvent.click(screen.getByRole('button', { name: '保存用餐记录' }))
 
     await waitFor(() => {
@@ -260,7 +260,7 @@ describe('功能一：当次食材配餐', () => {
 
     const log = useAppStore.getState().data.mealLogs[0]
     expect(log.isOffPlan).toBe(true)
-    expect(log.note).toBe('吃了肯德基套餐')
+    expect(log.note).toBe('吃了一顿计划外餐食')
     expect(log.items[0]?.name).toBe('米饭')
     expect(log.nutrition.calories).toBeGreaterThan(0)
   })

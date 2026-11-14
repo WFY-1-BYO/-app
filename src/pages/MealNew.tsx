@@ -26,6 +26,7 @@ const mealOptions: Array<{ value: MealType; label: string }> = [
 export default function MealNew() {
   const navigate = useNavigate()
   const profile = useAppStore(state => state.data.profile)
+  const settings = useAppStore(state => state.data.settings)
   const addMealSession = useAppStore(state => state.addMealSession)
   const [mealType, setMealType] = useState<MealType>('lunch')
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
@@ -40,7 +41,7 @@ export default function MealNew() {
   const option = getReferenceOption(referenceKind)
 
   const applyRecognition = async (file: File, kind: ReferenceKind) => {
-    const result = await recognizeIngredientsFromFile(file, kind)
+    const result = await recognizeIngredientsFromFile(file, kind, settings)
     setIngredients(result.ingredients)
     setRecognitionNote(result.note)
   }
