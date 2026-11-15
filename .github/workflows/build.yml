@@ -81,11 +81,11 @@ jobs:
           node-version: '22'
           cache: pnpm
 
-      - name: 安装 JDK 17（AGP 8.7 所需）
+      - name: 安装 JDK 21（capacitor.build.gradle 要求 source 21）
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
-          java-version: '17'
+          java-version: '21'
 
       - name: 安装 Android SDK（cmdline-tools）
         run: |
@@ -163,7 +163,7 @@ jobs:
             android-apk/app-release.apk
           generate_release_notes: true
           body: |
-            ## 家庭营养师 · 安装包（V1.6.0）
+            ## 家庭营养师 · 安装包（${{ github.ref_name }}）
 
             - **安卓 APK** `app-release.apk`：下载后允许「未知来源 / 安装未知应用」即可安装使用。数据全部保存在本机，可随时导出，不会自动上传。
             - **Web 成品包** `*.zip`：解压后用「启动」脚本在本机起服务，浏览器打开即用；也可「添加到主屏幕」当作 App。
