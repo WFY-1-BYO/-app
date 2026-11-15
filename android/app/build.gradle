@@ -7,13 +7,29 @@ android {
         applicationId "com.family.nutritionist"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 17
-        versionName "1.6.1"
+        versionCode 18
+        versionName "1.7.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
              // Default: https://android.googlesource.com/platform/frameworks/base/+/282e181b58cf72b6ca770dc7ca5f91f135444502/tools/aapt/AaptAssets.cpp#61
             ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
+        }
+    }
+    // V1.7：手机 / 平板各自独立安装包，包名、应用名、Web 资源都分开
+    flavorDimensions += 'device'
+    productFlavors {
+        phone {
+            dimension 'device'
+            applicationId 'com.family.nutritionist.phone'
+            versionNameSuffix '-phone'
+            manifestPlaceholders = [appLabel: '家庭营养师·手机']
+        }
+        pad {
+            dimension 'device'
+            applicationId 'com.family.nutritionist.pad'
+            versionNameSuffix '-pad'
+            manifestPlaceholders = [appLabel: '家庭营养师·平板']
         }
     }
     signingConfigs {

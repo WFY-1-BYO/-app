@@ -28,6 +28,9 @@ dist-package/
 # 密钥与隐私：绝不入库
 .env
 .env.*
+# 手机 / 平板分版的环境变量只含设备档，不含任何密钥，需要入库
+!/.env.phone
+!/.env.pad
 *.key
 *.pem
 *.keystore
@@ -47,6 +50,11 @@ android/local.properties
 android/app/src/main/assets/public/
 android/app/src/main/assets/capacitor.config.json
 android/app/src/main/assets/capacitor.plugins.json
+# 分版构建产物（由 scripts/sync-device-assets.mjs 生成）
+dist-phone/
+dist-pad/
+android/app/src/phone/assets/public/
+android/app/src/pad/assets/public/
 *.apk
 *.aab
 

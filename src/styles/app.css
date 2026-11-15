@@ -1682,3 +1682,34 @@ button.chip {
   font-size: var(--fs-hint);
   color: var(--muted);
 }
+
+/* ===== V1.7 手机 / 平板分版：布局锁定，不随窗口宽度漂移 ===== */
+/* 平板包在分屏等窄窗口下仍保留侧栏与横向排版 */
+@media (max-width: 899px) {
+  .app-shell.device-pad .side-nav {
+    display: flex;
+  }
+
+  .app-shell.device-pad.tablet-layout {
+    grid-template-columns: 190px minmax(0, 1fr);
+  }
+
+  .app-shell.device-pad.tablet-layout .app-content {
+    padding: 0 20px 40px;
+  }
+}
+
+/* 手机包装在大屏设备上也保持单栏 + 底部导航 */
+@media (min-width: 900px) {
+  .app-shell.device-phone {
+    max-width: 560px;
+    margin: 0 auto;
+  }
+
+  .app-shell.device-phone .two-col,
+  .app-shell.device-phone .today-page.tablet-today,
+  .app-shell.device-phone .records-tablet {
+    display: flex;
+    flex-direction: column;
+  }
+}

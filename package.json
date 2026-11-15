@@ -1,11 +1,15 @@
 {
   "name": "family-nutritionist",
   "private": true,
-  "version": "1.6.1",
+  "version": "1.7.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:phone": "tsc -b && vite build --mode phone --outDir dist-phone",
+    "build:pad": "tsc -b && vite build --mode pad --outDir dist-pad",
+    "build:devices": "pnpm build:phone && pnpm build:pad",
+    "sync:devices": "node scripts/sync-device-assets.mjs",
     "lint": "oxlint",
     "preview": "vite preview",
     "test": "vitest run",

@@ -18,7 +18,7 @@ jobs:
     name: 类型检查 · Lint · 测试 · Web 构建 · 打包
     runs-on: ubuntu-latest
     env:
-      APP_VERSION: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || 'V1.6' }}
+      APP_VERSION: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || 'V1.7' }}
     steps:
       - name: 拉取源码
         uses: actions/checkout@v4
@@ -106,11 +106,17 @@ jobs:
       - name: 安装依赖（锁定 lockfile）
         run: pnpm install --frozen-lockfile
 
-      - name: 生产构建
-        run: pnpm build
+      - name: 生产构建（通用 + 手机 + 平板三份 Web 资源）
+        run: |
+          pnpm build
+          pnpm build:phone
+          pnpm build:pad
 
       - name: 同步 Capacitor 安卓工程（拷贝 Web 资源 + 生成插件目录）
         run: npx cap sync android
+
+      - name: 手机 / 平板资源写入各自 flavor
+        run: node scripts/sync-device-assets.mjs
 
       - name: 生成签名密钥（仅本次构建使用，不入库）
         run: |
@@ -123,17 +129,21 @@ jobs:
             -keypass FamilyNutritionist2026 \
             -dname "CN=Family Nutritionist"
 
-      - name: 构建 Release APK
+      - name: 构建手机 / 平板两个 Release APK
         run: |
           cd android
           chmod +x ./gradlew
-          ./gradlew assembleRelease --no-daemon
+          ./gradlew assemblePhoneRelease assemblePadRelease --no-daemon
+          mkdir -p ../dist-apk
+          cp app/build/outputs/apk/phone/release/app-phone-release.apk ../dist-apk/family-nutritionist-phone.apk
+          cp app/build/outputs/apk/pad/release/app-pad-release.apk ../dist-apk/family-nutritionist-pad.apk
+          ls -lh ../dist-apk
 
-      - name: 上传 APK 产物
+      - name: 上传两个 APK 产物
         uses: actions/upload-artifact@v4
         with:
           name: android-apk
-          path: 'android/app/build/outputs/apk/release/app-release.apk'
+          path: 'dist-apk/*.apk'
           if-no-files-found: error
           retention-days: 90
 
@@ -160,14 +170,19 @@ jobs:
         with:
           files: |
             dist-package/*.zip
-            android-apk/app-release.apk
+            android-apk/*.apk
           generate_release_notes: true
           body: |
             ## 家庭营养师 · 安装包（${{ github.ref_name }}）
 
-            - **安卓 APK** `app-release.apk`：下载后允许「未知来源 / 安装未知应用」即可安装使用。数据全部保存在本机，可随时导出，不会自动上传。
+            本版按设备分成两个独立安装包，请按手里的设备选一个下载：
+
+            - **手机端** `family-nutritionist-phone.apk`：竖屏、单栏、底部三段导航。
+            - **平板端** `family-nutritionist-pad.apk`：横竖屏都可用、左侧导航 + 双栏。
             - **Web 成品包** `*.zip`：解压后用「启动」脚本在本机起服务，浏览器打开即用；也可「添加到主屏幕」当作 App。
+
+            两个包包名不同，可同时装在同一台设备上互不影响。数据全部保存在本机，可随时导出，不会自动上传。
 
             > 安装新版时若提示「签名冲突 / 安装失败」，请先卸载旧版再装（家庭自用，安装包签名由每次构建生成）。
 
-            **拍照识别 / 每日知识**：需先在 App「设置」中填入 DeepSeek 密钥（密钥只在你本机保存，不随安装包分发、不进代码仓库）。
+            **拍照识别 / 每日知识 / 配餐 AI 解读**：首次打开会提醒填写 DeepSeek 密钥（密钥只在你本机加密保存，不随安装包分发、不进代码仓库）。

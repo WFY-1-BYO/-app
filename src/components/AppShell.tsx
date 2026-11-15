@@ -3,6 +3,7 @@ import FloatingAssistant from './FloatingAssistant'
 import MedalCelebration from './MedalCelebration'
 import NavIcon, { type NavIconName } from './NavIcon'
 import { useIsTablet } from '../lib/breakpoint'
+import { deviceProfileLabel, resolveDeviceProfile } from '../lib/deviceProfile'
 
 const navItems: {
   to: string
@@ -19,6 +20,8 @@ const navItems: {
 export default function AppShell() {
   const location = useLocation()
   const isTablet = useIsTablet()
+  const profile = resolveDeviceProfile()
+  const profileLabel = deviceProfileLabel(profile)
   const focusRoutes = [
     '/onboarding',
     '/meal/new',
@@ -29,6 +32,7 @@ export default function AppShell() {
   const isFocus = focusRoutes.some(route => location.pathname.startsWith(route))
   const shellClass = [
     'app-shell',
+    `device-${profile}`,
     isTablet ? 'tablet-layout' : '',
     isFocus ? 'focus-page' : '',
   ]
@@ -63,7 +67,7 @@ export default function AppShell() {
             ))}
           </nav>
           <p className="side-nav-foot">
-            v1.4 · 数据存于本机
+            v1.7{profileLabel ? ` · ${profileLabel}` : ''} · 数据存于本机
             <br />
             NDM 可导出迁移
           </p>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 平板包：横竖屏都可用，侧栏 + 双栏 -->
+    <application>
+        <activity
+            android:name=".MainActivity"
+            android:screenOrientation="unspecified" />
+    </application>
+</manifest>
