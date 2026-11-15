@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useAppStore } from '../store/appStore'
-import { dailyKnowledge } from '../lib/knowledge'
-import { dateKey } from '../lib/id'
+import { dateKey, toDateKey } from '../lib/id'
 
 /**
  * 知夏悬浮球。
@@ -27,9 +26,15 @@ export default function FloatingAssistant({
   const dragPositionRef = useRef(settings.assistantPosition)
 
   const today = dateKey(new Date())
-  const knowledge = dailyKnowledge(today)
+  const todayKnowledge = useAppStore(state =>
+    state.data.knowledge.find(
+      item => (item.date ?? toDateKey(item.createdAt)) === dateKey(new Date()),
+    ),
+  )
   const dailyMessage = profileExists
-    ? `知夏 · 今日知识：${knowledge.summary}`
+    ? todayKnowledge
+      ? `知夏 · 今日知识：${todayKnowledge.summary}`
+      : '今天还没有新知识，联网后稍候再看。'
     : '先把档案建好，我就能按你的目标配餐了。点这里去创建。'
   const bubbleText = message ?? dailyMessage
 

@@ -184,6 +184,8 @@ export interface KnowledgeItem {
   why: string
   relatedFeature: string
   createdAt: string
+  /** 该条所属的日期（YYYY-MM-DD），由每日生成逻辑写入，用于按天索引与日历点亮 */
+  date?: string
   readAt?: string
   favorite: boolean
 }

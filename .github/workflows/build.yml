@@ -18,7 +18,7 @@ jobs:
     name: 类型检查 · Lint · 测试 · Web 构建 · 打包
     runs-on: ubuntu-latest
     env:
-      APP_VERSION: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || 'V1.5' }}
+      APP_VERSION: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || 'V1.6' }}
     steps:
       - name: 拉取源码
         uses: actions/checkout@v4
@@ -93,7 +93,9 @@ jobs:
           curl -fsSL -o /tmp/cmdtools.zip https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
           unzip -q /tmp/cmdtools.zip -d "$HOME/android-sdk/cmdline-tools"
           mv "$HOME/android-sdk/cmdline-tools/cmdline-tools" "$HOME/android-sdk/cmdline-tools/latest"
+          # 关键：运行器镜像自带 ANDROID_SDK_ROOT，必须与 ANDROID_HOME 指向同一路径，否则 Gradle 报「SDK 路径冲突」
           echo "ANDROID_HOME=$HOME/android-sdk" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$HOME/android-sdk" >> "$GITHUB_ENV"
           echo "$HOME/android-sdk/cmdline-tools/latest/bin" >> "$GITHUB_PATH"
 
       - name: 安装 SDK 组件并同意许可
@@ -161,11 +163,11 @@ jobs:
             android-apk/app-release.apk
           generate_release_notes: true
           body: |
-            ## 家庭营养师 · 安装包（V1.5.0）
+            ## 家庭营养师 · 安装包（V1.6.0）
 
-            - **安卓 APK** `app-release.apk`：下载后允许「未知来源 / 安装未知应用」即可安装使用。数据全部保存在本机，不会上传。
+            - **安卓 APK** `app-release.apk`：下载后允许「未知来源 / 安装未知应用」即可安装使用。数据全部保存在本机，可随时导出，不会自动上传。
             - **Web 成品包** `*.zip`：解压后用「启动」脚本在本机起服务，浏览器打开即用；也可「添加到主屏幕」当作 App。
 
             > 安装新版时若提示「签名冲突 / 安装失败」，请先卸载旧版再装（家庭自用，安装包签名由每次构建生成）。
 
-            **拍照识别**：需先在 App「设置」中填入 DeepSeek 密钥（密钥只在你本机保存，不随安装包分发、不进代码仓库）。
+            **拍照识别 / 每日知识**：需先在 App「设置」中填入 DeepSeek 密钥（密钥只在你本机保存，不随安装包分发、不进代码仓库）。

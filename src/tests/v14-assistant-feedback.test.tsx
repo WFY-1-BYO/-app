@@ -35,6 +35,7 @@ describe('V1.4 改动 11：悬浮球自由拖动与开屏播报', () => {
 
   it('每天第一次打开 App：悬浮球自动弹出今日知识气泡', async () => {
     withProfile()
+    await useAppStore.getState().ensureTodayKnowledge()
     render(<FloatingAssistant />)
     expect(screen.queryByRole('status')).toBeNull()
 

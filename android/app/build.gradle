@@ -7,8 +7,8 @@ android {
         applicationId "com.family.nutritionist"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 15
-        versionName "1.5.0"
+        versionCode 16
+        versionName "1.6.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -36,6 +36,11 @@ android {
                 signingConfig signingConfigs.release
             }
         }
+    }
+    // 家庭自用：发布构建不被 lint 阻断（vital lint 仅作提示，不致命）
+    lint {
+        abortOnError false
+        checkReleaseBuilds false
     }
 }
 

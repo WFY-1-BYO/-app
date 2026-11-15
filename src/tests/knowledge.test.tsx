@@ -3,62 +3,68 @@ import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import Knowledge from '../pages/Knowledge'
 import { emptyAppData, useAppStore } from '../store/appStore'
-import { dailyKnowledge, initialKnowledge } from '../lib/knowledge'
+import { generateDailyKnowledgeContent } from '../lib/knowledgeGen'
+import { dateKey } from '../lib/id'
+import type { AppSettings } from '../types'
 
-describe('功能二：首页知识与知识册', () => {
+describe('功能二：每日知识与知识册', () => {
   beforeEach(() => {
     localStorage.clear()
     useAppStore.setState({
-      data: { ...structuredClone(emptyAppData), knowledge: initialKnowledge() },
+      data: { ...structuredClone(emptyAppData) },
       initialized: true,
     })
   })
 
-  it('初始化时预置轻量化营养知识', async () => {
+  it('全新用户初始化后知识册为空，待当天生成', async () => {
     await useAppStore.getState().initialize()
-    const knowledge = useAppStore.getState().data.knowledge
-    expect(knowledge.length).toBeGreaterThan(0)
-    expect(knowledge.every(item => item.summary.length > 0)).toBe(true)
-    expect(knowledge.every(item => item.why.length > 0)).toBe(true)
+    expect(useAppStore.getState().data.knowledge).toHaveLength(0)
   })
 
-  it('每日知识按日期稳定返回，不随机跳变', () => {
-    const first = dailyKnowledge('2026-11-12')
-    const second = dailyKnowledge('2026-11-12')
-    expect(first.id).toBe(second.id)
-    expect(first.summary).toBeTruthy()
+  it('ensureTodayKnowledge 当天只生成并记入一条知识（幂等）', async () => {
+    await useAppStore.getState().ensureTodayKnowledge()
+    const first = useAppStore.getState().data.knowledge
+    expect(first).toHaveLength(1)
+    expect(first[0].date).toBe(dateKey(new Date()))
+    expect(first[0].summary.length).toBeGreaterThan(0)
+    expect(first[0].why.length).toBeGreaterThan(0)
+    // 再次调用不应重复生成
+    await useAppStore.getState().ensureTodayKnowledge()
+    expect(useAppStore.getState().data.knowledge).toHaveLength(1)
+  })
+
+  it('generateDailyKnowledgeContent 无密钥时回退内置库且字段完整', async () => {
+    const gen = await generateDailyKnowledgeContent(
+      '2026-11-15',
+      {} as unknown as AppSettings,
+      {},
+    )
+    expect(gen.title).toBeTruthy()
+    expect(gen.summary).toBeTruthy()
+    expect(gen.why).toBeTruthy()
   })
 
   it('知识册展示分类、摘要和“为什么”解释', async () => {
+    await useAppStore.getState().ensureTodayKnowledge()
     const user = userEvent.setup()
     render(<Knowledge />)
-
     expect(screen.getByRole('heading', { name: '知识册' })).toBeInTheDocument()
     expect(screen.getAllByText(/为什么/).length).toBeGreaterThan(0)
-
-    const firstWhyButton = screen.getAllByRole('button', { name: '为什么' })[0]
-    await user.click(firstWhyButton)
-
+    await user.click(screen.getAllByRole('button', { name: '为什么' })[0])
     await waitFor(() => {
       expect(screen.getByText('为什么这样说')).toBeInTheDocument()
     })
   })
 
   it('展开知识会记录已读，收藏可切换', async () => {
+    await useAppStore.getState().ensureTodayKnowledge()
     const user = userEvent.setup()
     render(<Knowledge />)
-
-    const firstWhyButton = screen.getAllByRole('button', { name: '为什么' })[0]
-    await user.click(firstWhyButton)
-
+    await user.click(screen.getAllByRole('button', { name: '为什么' })[0])
     await waitFor(() => {
-      const first = useAppStore.getState().data.knowledge[0]
-      expect(first.readAt).toBeTruthy()
+      expect(useAppStore.getState().data.knowledge[0].readAt).toBeTruthy()
     })
-
-    const firstFavoriteButton = screen.getAllByRole('button', { name: '收藏' })[0]
-    await user.click(firstFavoriteButton)
-
+    await user.click(screen.getAllByRole('button', { name: '收藏' })[0])
     await waitFor(() => {
       expect(useAppStore.getState().data.knowledge[0].favorite).toBe(true)
     })

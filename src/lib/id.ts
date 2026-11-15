@@ -34,6 +34,11 @@ export function dateKey(date: string | Date): string {
   return `${year}-${month}-${day}`
 }
 
+/** 从 ISO 时间串里取出 YYYY-MM-DD 日期键 */
+export function toDateKey(input: string): string {
+  return input.slice(0, 10)
+}
+
 export function daysBetween(start: string, end: string): number {
   const startTime = new Date(start).getTime()
   const endTime = new Date(end).getTime()

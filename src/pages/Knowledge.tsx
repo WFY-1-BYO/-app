@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useAppStore } from '../store/appStore'
-import { archivedKnowledge, knowledgeArchiveStart, monthArchive } from '../lib/knowledge'
-import { dateKey } from '../lib/id'
+import { knowledgeArchiveStart, monthArchive } from '../lib/knowledge'
+import { dateKey, toDateKey } from '../lib/id'
 
 const weekdays = ['一', '二', '三', '四', '五', '六', '日']
 
@@ -28,23 +28,33 @@ export default function Knowledge() {
     return ['全部', ...Array.from(set)]
   }, [knowledge])
 
+  const sorted = useMemo(
+    () =>
+      [...knowledge].sort((a, b) =>
+        (b.date ?? toDateKey(b.createdAt)).localeCompare(a.date ?? toDateKey(a.createdAt)),
+      ),
+    [knowledge],
+  )
+
   const filtered = useMemo(() => {
-    if (category === '全部') return knowledge
-    return knowledge.filter(item => item.category === category)
-  }, [category, knowledge])
+    if (category === '全部') return sorted
+    return sorted.filter(item => item.category === category)
+  }, [category, sorted])
 
   const cells = useMemo(
-    () => monthArchive(view.year, view.month, archiveStart, today),
-    [view, archiveStart, today],
+    () => monthArchive(view.year, view.month, knowledge),
+    [view, knowledge],
   )
-  const selected = archivedKnowledge(selectedDate, archiveStart, today)
-  const savedSelected = knowledge.find(item => item.id === selected?.id)
+  const selected = useMemo(
+    () => knowledge.find(item => (item.date ?? toDateKey(item.createdAt)) === selectedDate) ?? null,
+    [knowledge, selectedDate],
+  )
 
   const shiftMonth = (delta: number) => {
     const d = new Date(Date.UTC(view.year, view.month - 1 + delta, 1))
     const next = { year: d.getUTCFullYear(), month: d.getUTCMonth() + 1 }
     setView(next)
-    const nextCells = monthArchive(next.year, next.month, archiveStart, today)
+    const nextCells = monthArchive(next.year, next.month, knowledge)
     setSelectedDate(nextCells.find(cell => cell.item)?.date ?? today)
     setExpanded(null)
   }
@@ -54,7 +64,7 @@ export default function Knowledge() {
       <section className="card stack">
         <h1 className="section-title">知识册</h1>
         <p className="muted">
-          一天只推一条，不刷屏；往后的日子也能翻回来看之前每一天的知识，不会看完就消失。
+          每天由 AI 生成一条健康知识，认识一条、记录一条，慢慢攒成你自己的知识册；点开某天可回看，合口味的可以收藏。
         </p>
         <div className="chip-group">
           {categories.map(item => (
@@ -122,61 +132,67 @@ export default function Knowledge() {
             <p>{selected.summary}</p>
             <p className="muted">{selected.why}</p>
             <p className="muted">
-              {savedSelected?.readAt ? '已读过' : '还没读过'} ·{' '}
-              {savedSelected?.favorite ? '已收藏' : '未收藏'} · 可在下方「全部知识」里展开或收藏
+              {selected.readAt ? '已读过' : '还没读过'} ·{' '}
+              {selected.favorite ? '已收藏' : '未收藏'}
             </p>
           </article>
         )}
       </section>
 
-      <section className="stack" aria-label="全部知识">
-        <h2 className="section-title">全部知识</h2>
-        {filtered.map(item => {
-          const isOpen = expanded === item.id
-          return (
-            <article className="card" key={item.id}>
-              <div className="spread">
-                <div>
-                  <p className="muted">{item.category}</p>
-                  <h2 className="section-title">{item.title}</h2>
-                </div>
-                <div className="row">
-                  <button
-                    type="button"
-                    className={`button small ${item.favorite ? '' : 'secondary'}`}
-                    onClick={() => void toggleKnowledgeFavorite(item.id)}
-                  >
-                    {item.favorite ? '已收藏' : '收藏'}
-                  </button>
-                  <button
-                    type="button"
-                    className="button small ghost"
-                    onClick={() => {
-                      setExpanded(isOpen ? null : item.id)
-                      if (!item.readAt) void markKnowledgeRead(item.id)
-                    }}
-                  >
-                    {isOpen ? '收起' : '为什么'}
-                  </button>
-                </div>
-              </div>
-
-              <p>{item.summary}</p>
-
-              {isOpen && (
-                <div className="card" style={{ boxShadow: 'none', marginTop: 12 }}>
-                  <strong>为什么这样说</strong>
-                  <p style={{ marginTop: 8 }}>{item.why}</p>
-                  {item.readAt && (
-                    <p className="muted" style={{ marginTop: 8 }}>
-                      已读时间：{new Date(item.readAt).toLocaleString('zh-CN')}
+      <section className="stack" aria-label="已记录的知识">
+        <h2 className="section-title">已记录的知识</h2>
+        {filtered.length === 0 ? (
+          <p className="muted">还没有记录。每天打开首页，知夏会为你生成并记入一条新知识。</p>
+        ) : (
+          filtered.map(item => {
+            const isOpen = expanded === item.id
+            return (
+              <article className="card" key={item.id}>
+                <div className="spread">
+                  <div>
+                    <p className="muted">
+                      {item.date ?? toDateKey(item.createdAt)} · {item.category}
                     </p>
-                  )}
+                    <h2 className="section-title">{item.title}</h2>
+                  </div>
+                  <div className="row">
+                    <button
+                      type="button"
+                      className={`button small ${item.favorite ? '' : 'secondary'}`}
+                      onClick={() => void toggleKnowledgeFavorite(item.id)}
+                    >
+                      {item.favorite ? '已收藏' : '收藏'}
+                    </button>
+                    <button
+                      type="button"
+                      className="button small ghost"
+                      onClick={() => {
+                        setExpanded(isOpen ? null : item.id)
+                        if (!item.readAt) void markKnowledgeRead(item.id)
+                      }}
+                    >
+                      {isOpen ? '收起' : '为什么'}
+                    </button>
+                  </div>
                 </div>
-              )}
-            </article>
-          )
-        })}
+
+                <p>{item.summary}</p>
+
+                {isOpen && (
+                  <div className="card" style={{ boxShadow: 'none', marginTop: 12 }}>
+                    <strong>为什么这样说</strong>
+                    <p style={{ marginTop: 8 }}>{item.why}</p>
+                    {item.readAt && (
+                      <p className="muted" style={{ marginTop: 8 }}>
+                        已读时间：{new Date(item.readAt).toLocaleString('zh-CN')}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </article>
+            )
+          })
+        )}
       </section>
     </div>
   )

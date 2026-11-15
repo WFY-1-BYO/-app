@@ -36,7 +36,7 @@ function metric(type: HealthMetric['type'], value: number): HealthMetric {
   }
 }
 
-function setup(healthMetrics: HealthMetric[] = []) {
+async function setup(healthMetrics: HealthMetric[] = []) {
   useAppStore.setState({
     data: {
       ...structuredClone(emptyAppData),
@@ -46,6 +46,7 @@ function setup(healthMetrics: HealthMetric[] = []) {
     },
     initialized: true,
   })
+  await useAppStore.getState().ensureTodayKnowledge()
   return render(
     <MemoryRouter>
       <Today />
@@ -62,9 +63,9 @@ afterEach(() => {
 })
 
 describe('V1.3 首页平板双栏（图 14）', () => {
-  it('平板首页分为主栏与副栏，主栏保留配餐主线', () => {
+  it('平板首页分为主栏与副栏，主栏保留配餐主线', async () => {
     stubMedia(true)
-    const { container } = setup()
+    const { container } = await setup()
 
     expect(container.querySelector('.tablet-today')).not.toBeNull()
     expect(container.querySelector('.today-main')).not.toBeNull()
@@ -77,9 +78,9 @@ describe('V1.3 首页平板双栏（图 14）', () => {
     expect(main.textContent).toContain('○ 待配餐')
   })
 
-  it('副栏含营养师说、坚持进度与健康指标，且全页只有一个主 CTA', () => {
+  it('副栏含营养师说、坚持进度与健康指标，且全页只有一个主 CTA', async () => {
     stubMedia(true)
-    const { container } = setup()
+    const { container } = await setup()
 
     const side = container.querySelector('.today-side')!
     expect(side.querySelector('[aria-label="营养师说"]')).not.toBeNull()
@@ -89,27 +90,27 @@ describe('V1.3 首页平板双栏（图 14）', () => {
     expect(container.querySelectorAll('.cta-primary')).toHaveLength(1)
   })
 
-  it('健康指标只做摘要与就医提醒，不出现运动字样', () => {
+  it('健康指标只做摘要与就医提醒，不出现运动字样', async () => {
     stubMedia(true)
-    const { container } = setup()
+    const { container } = await setup()
 
     expect(container.textContent).toContain('不替代诊断')
     expect(container.textContent).toContain('及时就医')
     expect(container.textContent).not.toContain('运动')
   })
 
-  it('有血压数据时按 128/82 mmHg 形式展示', () => {
+  it('有血压数据时按 128/82 mmHg 形式展示', async () => {
     stubMedia(true)
-    const { container } = setup([
+    const { container } = await setup([
       metric('systolic_pressure', 128),
       metric('diastolic_pressure', 82),
     ])
     expect(container.querySelector('.health-big')?.textContent).toContain('128/82')
   })
 
-  it('手机宽度仍是极简一屏，不渲染平板双栏', () => {
+  it('手机宽度仍是极简一屏，不渲染平板双栏', async () => {
     stubMedia(false)
-    const { container } = setup()
+    const { container } = await setup()
     expect(container.querySelector('.tablet-today')).toBeNull()
     expect(screen.queryByText('今天三餐')).not.toBeInTheDocument()
     expect(screen.queryByText('坚持进度')).not.toBeInTheDocument()

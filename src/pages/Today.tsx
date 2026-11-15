@@ -1,8 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAppStore } from '../store/appStore'
-import { dailyKnowledge } from '../lib/knowledge'
-import { dateKey, formatDate } from '../lib/id'
+import { dateKey, formatDate, toDateKey } from '../lib/id'
 import { computeStreak } from '../lib/stats'
 import { getNextMedal } from '../lib/medals'
 import { analyzeMetric, metricLabels } from '../lib/health'
@@ -24,14 +23,31 @@ export default function Today() {
   const data = useAppStore(state => state.data)
   const toggleKnowledgeFavorite = useAppStore(state => state.toggleKnowledgeFavorite)
   const markKnowledgeRead = useAppStore(state => state.markKnowledgeRead)
+  const ensureTodayKnowledge = useAppStore(state => state.ensureTodayKnowledge)
   const isTablet = useIsTablet()
   const [now] = useState(() => new Date())
   const [whyOpen, setWhyOpen] = useState(false)
+  const [loadingKnowledge, setLoadingKnowledge] = useState(true)
   const today = dateKey(now)
   const hour = now.getHours()
   const displayDate = formatDate(now)
-  const knowledge = dailyKnowledge(today)
-  const saved = data.knowledge.find(item => item.id === knowledge.id)
+  const todayKnowledge = useAppStore(state =>
+    state.data.knowledge.find(
+      item => (item.date ?? toDateKey(item.createdAt)) === dateKey(new Date()),
+    ),
+  )
+
+  useEffect(() => {
+    let alive = true
+    ensureTodayKnowledge()
+      .catch(() => undefined)
+      .finally(() => {
+        if (alive) setLoadingKnowledge(false)
+      })
+    return () => {
+      alive = false
+    }
+  }, [ensureTodayKnowledge])
   const todayLogs = data.mealLogs.filter(log => dateKey(log.date) === today)
   const mealTypes = new Set(todayLogs.map(log => log.mealType))
   const nextMeal =
@@ -104,30 +120,45 @@ export default function Today() {
     </section>
   )
 
-  const knowledgeBubble = (
+  const knowledgeBubble = !todayKnowledge ? (
     <section className="card knowledge-bubble" aria-label="营养师说">
       <img src="/assistant.png" alt="知夏" className="bubble-avatar" />
       <div className="bubble-body">
         <span className="bubble-from">知夏 · 今日知识</span>
-        <p className="bubble-text">{knowledge.summary}</p>
-        <p className="muted bubble-title">{knowledge.title}</p>
+        <p className="bubble-text muted">
+          {loadingKnowledge ? '正在为你准备今天的知识…' : '今天还没有知识，联网后稍候再来。'}
+        </p>
+        <div className="row bubble-actions">
+          <Link to="/knowledge" className="bubble-link">
+            知识册 ›
+          </Link>
+        </div>
+      </div>
+    </section>
+  ) : (
+    <section className="card knowledge-bubble" aria-label="营养师说">
+      <img src="/assistant.png" alt="知夏" className="bubble-avatar" />
+      <div className="bubble-body">
+        <span className="bubble-from">知夏 · 今日知识</span>
+        <p className="bubble-text">{todayKnowledge.summary}</p>
+        <p className="muted bubble-title">{todayKnowledge.title}</p>
         <div className="row bubble-actions">
           <button
             type="button"
             className="button small ghost"
             onClick={() => {
               setWhyOpen(value => !value)
-              if (!saved?.readAt) void markKnowledgeRead(knowledge.id)
+              if (!todayKnowledge.readAt) void markKnowledgeRead(todayKnowledge.id)
             }}
           >
             {whyOpen ? '收起' : '展开说说为什么'}
           </button>
           <button
             type="button"
-            className={`button small ${saved?.favorite ? '' : 'secondary'}`}
-            onClick={() => void toggleKnowledgeFavorite(knowledge.id)}
+            className={`button small ${todayKnowledge.favorite ? '' : 'secondary'}`}
+            onClick={() => void toggleKnowledgeFavorite(todayKnowledge.id)}
           >
-            {saved?.favorite ? '已收进知识册' : '收进知识册'}
+            {todayKnowledge.favorite ? '已收藏' : '收藏'}
           </button>
           <Link to="/knowledge" className="bubble-link">
             知识册 ›
@@ -136,7 +167,7 @@ export default function Today() {
         {whyOpen && (
           <div className="bubble-why">
             <strong>为什么这样说</strong>
-            <p>{knowledge.why}</p>
+            <p>{todayKnowledge.why}</p>
           </div>
         )}
       </div>

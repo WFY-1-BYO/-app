@@ -12,9 +12,9 @@ import type {
   UtensilCalibration,
 } from '../types'
 import { loadAppData, saveAppData } from '../lib/storage'
-import { createId, nowIso } from '../lib/id'
+import { createId, dateKey, nowIso, toDateKey } from '../lib/id'
 import { computeMedals } from '../lib/medals'
-import { initialKnowledge } from '../lib/knowledge'
+import { generateDailyKnowledgeItem } from '../lib/knowledgeGen'
 
 const defaultSettings: AppSettings = {
   assistantEnabled: true,
@@ -55,6 +55,8 @@ interface AppStore {
   addKnowledge: (item: KnowledgeItem) => Promise<void>
   markKnowledgeRead: (id: string) => Promise<void>
   toggleKnowledgeFavorite: (id: string) => Promise<void>
+  /** 确保「今天」已有一条知识：没有就调用 DeepSeek 生成并记入知识册（已有则跳过） */
+  ensureTodayKnowledge: () => Promise<void>
   updateSettings: (settings: Partial<AppSettings>) => Promise<void>
   toggleRestDay: (date: string) => Promise<void>
   addReward: (reward: Reward) => Promise<void>
@@ -81,21 +83,17 @@ export const useAppStore = create<AppStore>((set, get) => ({
     } catch (error) {
       console.warn('初始化读取失败，以空白档案启动', error)
     }
-    const seededKnowledge =
-      loaded && loaded.knowledge.length > 0 ? loaded.knowledge : initialKnowledge()
-    set({
-      data: loaded
-        ? {
-            ...emptyAppData,
-            ...loaded,
-            knowledge: seededKnowledge,
-            settings: { ...defaultSettings, ...loaded.settings },
-          }
-        : { ...emptyAppData, knowledge: initialKnowledge() },
-      initialized: true,
-    })
-    if (!loaded || loaded.knowledge.length === 0) {
-      await persist(useAppStore.getState().data)
+    if (loaded) {
+      set({
+        data: {
+          ...emptyAppData,
+          ...loaded,
+          settings: { ...defaultSettings, ...loaded.settings },
+        },
+        initialized: true,
+      })
+    } else {
+      set({ data: { ...emptyAppData }, initialized: true })
     }
   },
 
@@ -212,6 +210,20 @@ export const useAppStore = create<AppStore>((set, get) => ({
     }
     set({ data })
     await persist(data)
+  },
+
+  ensureTodayKnowledge: async () => {
+    const { data } = get()
+    const today = dateKey(new Date())
+    const hasToday = data.knowledge.some(
+      item => (item.date ?? toDateKey(item.createdAt)) === today,
+    )
+    if (hasToday) return
+    const item = await generateDailyKnowledgeItem(today, data.settings, {
+      profile: data.profile,
+      recentLogs: data.mealLogs,
+    })
+    await get().addKnowledge(item)
   },
 
   updateSettings: async settings => {

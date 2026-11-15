@@ -19,8 +19,11 @@ describe('本地存储异常时的启动兜底', () => {
     vi.mocked(loadAppData).mockRejectedValueOnce(new Error('IndexedDB blocked'))
     await useAppStore.getState().initialize()
     expect(useAppStore.getState().initialized).toBe(true)
-    expect(useAppStore.getState().data.knowledge.length).toBeGreaterThan(0)
-    expect(saveAppData).toHaveBeenCalled()
+    // 全新初始化不再预置知识，知识由「每日生成」逻辑在当天写入
+    expect(useAppStore.getState().data.knowledge).toHaveLength(0)
+    // 初始化之后，当天生成逻辑可正常补一条
+    await useAppStore.getState().ensureTodayKnowledge()
+    expect(useAppStore.getState().data.knowledge).toHaveLength(1)
   })
 
   it('存储写入失败不会阻断初始化', async () => {

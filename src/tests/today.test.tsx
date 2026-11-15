@@ -8,7 +8,7 @@ import { emptyAppData, useAppStore, createDefaultProfile } from '../store/appSto
 import { initialKnowledge } from '../lib/knowledge'
 
 describe('改动 1：首页极简一屏', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     localStorage.clear()
     useAppStore.setState({
       data: {
@@ -18,6 +18,8 @@ describe('改动 1：首页极简一屏', () => {
       },
       initialized: true,
     })
+    // 预生成当天知识，避免首页异步生成影响同步断言
+    await useAppStore.getState().ensureTodayKnowledge()
   })
 
   const renderToday = () =>
@@ -32,7 +34,6 @@ describe('改动 1：首页极简一屏', () => {
     const cta = screen.getByRole('link', { name: /拍照配餐/ })
     expect(cta).toBeInTheDocument()
     expect(cta.className).toContain('cta-primary')
-    // 首页唯一的 cta-primary 主按钮
     expect(document.querySelectorAll('.cta-primary')).toHaveLength(1)
   })
 
@@ -53,13 +54,13 @@ describe('改动 1：首页极简一屏', () => {
     expect(screen.queryByText(/运动/)).not.toBeInTheDocument()
   })
 
-  it('知识气泡可展开「为什么」并收进知识册', async () => {
+  it('知识气泡可展开「为什么」并收藏', async () => {
     const user = userEvent.setup()
     renderToday()
     await user.click(screen.getByRole('button', { name: '展开说说为什么' }))
     expect(screen.getByText('为什么这样说')).toBeInTheDocument()
-    await user.click(screen.getByRole('button', { name: /收进知识册/ }))
-    expect(screen.getByRole('button', { name: '已收进知识册' })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: /收藏/ }))
+    expect(screen.getByRole('button', { name: '已收藏' })).toBeInTheDocument()
   })
 
   it('被移走的内容在记录页仍可查看，功能不丢失', () => {

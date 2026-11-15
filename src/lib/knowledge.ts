@@ -123,12 +123,12 @@ export function toDateKey(input: string): string {
 }
 
 /**
- * 归档起始日：知识库最早创建日。
- * 若系统日期早于知识库创建日（或知识为空），退回今天，保证今天一定有知识。
+ * 归档起始日：知识册里最早一条的日期。
+ * 若知识为空或系统日期早于该日，退回今天，保证今天至少可生成一条。
  */
 export function knowledgeArchiveStart(items: KnowledgeItem[], today: string): string {
   const dates = items
-    .map(item => toDateKey(item.createdAt))
+    .map(item => item.date ?? toDateKey(item.createdAt))
     .filter(Boolean)
     .sort()
   const earliest = dates[0]
@@ -136,32 +136,13 @@ export function knowledgeArchiveStart(items: KnowledgeItem[], today: string): st
   return earliest
 }
 
-/**
- * 每日知识：同一天恒定返回同一条（一天只推一条），
- * 按「距 epoch 的天数」轮换，跨月、跨年都不会在每月 1 号重复。
- */
-export function dailyKnowledge(date: string): KnowledgeItem {
-  const key = toDateKey(date)
-  const parsed = Date.parse(`${key}T00:00:00Z`)
-  const dayNumber = Number.isFinite(parsed) ? Math.floor(parsed / 86400000) : 0
-  const total = knowledgeDatabase.length
-  const index = ((dayNumber % total) + total) % total
-  return { ...knowledgeDatabase[index] }
-}
-
-/** 某一天是否在可回看归档范围内（起始日 ≤ 该日 ≤ 今天） */
-export function isArchivedDate(date: string, startDate: string, today: string): boolean {
-  const key = toDateKey(date)
-  return key >= toDateKey(startDate) && key <= toDateKey(today)
-}
-
-/** 点选某天：范围内返回当天知识，范围外返回 null（不假装已推送） */
-export function archivedKnowledge(
+/** 按日期取回当天已记入知识册的条目（没有则返回 undefined） */
+export function knowledgeByDate(
+  items: KnowledgeItem[],
   date: string,
-  startDate: string,
-  today: string,
-): KnowledgeItem | null {
-  return isArchivedDate(date, startDate, today) ? dailyKnowledge(date) : null
+): KnowledgeItem | undefined {
+  const key = toDateKey(date)
+  return items.find(item => (item.date ?? toDateKey(item.createdAt)) === key)
 }
 
 /** 日历网格：周一为第一列，含上月 / 下月补位格 */
@@ -186,24 +167,22 @@ export interface CalendarCell {
   item: KnowledgeItem | null
 }
 
-/** 某月归档：范围内每天恰好一条，范围外为 null（日历里不可点） */
+/**
+ * 某月日历：只把「已经记入知识册」的日期点亮，其余不可点。
+ * 一天最多一条（由每日生成逻辑保证），范围外为 null。
+ */
 export function monthArchive(
   year: number,
   month: number,
-  startDate: string,
-  today: string,
+  items: KnowledgeItem[],
 ): CalendarCell[] {
+  const byDate = new Map<string, KnowledgeItem>()
+  for (const item of items) {
+    const key = item.date ?? toDateKey(item.createdAt)
+    if (!byDate.has(key)) byDate.set(key, item)
+  }
   return monthGrid(year, month).map(cell => ({
     ...cell,
-    item:
-      cell.inMonth && isArchivedDate(cell.date, startDate, today)
-        ? dailyKnowledge(cell.date)
-        : null,
+    item: cell.inMonth && byDate.has(cell.date) ? byDate.get(cell.date)! : null,
   }))
-}
-
-export function knowledgeByCategory(category: string): KnowledgeItem[] {
-  return knowledgeDatabase
-    .filter(item => item.category === category)
-    .map(item => ({ ...item }))
 }
