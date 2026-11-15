@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import AppShell from './components/AppShell'
+import ApiKeyPrompt from './components/ApiKeyPrompt'
 import Onboarding from './pages/Onboarding'
 import Today from './pages/Today'
 import Records from './pages/Records'
@@ -41,6 +42,7 @@ export default function App() {
 
   return (
     <BrowserRouter>
+      <ApiKeyPrompt />
       <Routes>
         <Route element={<AppShell />}>
           <Route path="/" element={<Today />} />

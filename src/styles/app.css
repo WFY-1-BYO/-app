@@ -1583,3 +1583,102 @@ button.chip {
   line-height: 1.7;
   white-space: pre-wrap;
 }
+
+/* ===== V1.7 首次启动：DeepSeek 密钥引导 ===== */
+.api-key-prompt-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(41, 45, 42, 0.45);
+}
+
+.api-key-prompt-card {
+  width: 100%;
+  max-width: 420px;
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: left;
+  box-shadow: 0 20px 60px rgba(41, 45, 42, 0.28);
+}
+
+.api-key-prompt-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+}
+
+.api-key-prompt-card .section-title {
+  margin: 0;
+}
+
+.api-key-prompt-card p {
+  margin: 0;
+}
+
+.api-key-prompt-list {
+  margin: 0;
+  padding-left: 20px;
+  display: grid;
+  gap: 6px;
+  font-size: var(--fs-body);
+}
+
+.api-key-prompt-actions {
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.api-key-prompt-foot {
+  font-size: var(--fs-hint);
+  line-height: 1.7;
+}
+
+/* ===== V1.7 配餐：建议烹饪方式 ===== */
+.cooking-method-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cooking-method {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 14px;
+  background: var(--primary-soft);
+}
+
+.cooking-method-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.cooking-method-name {
+  font-size: var(--fs-section);
+  color: var(--primary-strong);
+}
+
+.cooking-method-tag {
+  font-size: var(--fs-label);
+  color: var(--muted);
+}
+
+.cooking-method p {
+  margin: 4px 0 0;
+  line-height: 1.6;
+}
+
+.cooking-method .cooking-method-tip {
+  font-size: var(--fs-hint);
+  color: var(--muted);
+}

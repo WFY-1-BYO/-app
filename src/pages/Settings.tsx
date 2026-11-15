@@ -97,8 +97,8 @@ export default function Settings() {
         <h2 className="section-title">DeepSeek 密钥</h2>
         <p className="muted">
           接口已内置（api.deepseek.com），你只需要在 DeepSeek
-          开放平台创建密钥后填一次。填好后：健康报告文字可在线识别，配餐结果可让知夏做 AI
-          解读。
+          开放平台创建密钥后填一次。填好后：食材照片可以看图识别，健康报告文字可在线识别，配餐结果可让知夏做
+          AI 解读。
         </p>
 
         <div className="form-row">
@@ -132,8 +132,8 @@ export default function Settings() {
 
         <div className="key-disclaimer">
           <p className="muted">
-            如实说明：食材照片识别走本地几何估算（DeepSeek 暂不支持看图），不依赖密钥；AI
-            只处理文字（报告解读、配餐点评）。密钥加密保存到本机，不回显、不写进导出文档；但纯前端方案下仍可能被从本机提取，请不要在共用设备上填入重要密钥。
+            如实说明：食材照片识别调用 DeepSeek 视觉模型，必须先填密钥才能看图；没填时只按文件名做简单匹配，结果请手动确认。健康报告解读、每日知识、配餐
+            AI 解读同样需要密钥。密钥加密保存到本机，不回显、不写进导出文件、不随安装包分发；但纯前端方案下仍可能被从本机提取，请不要在共用设备上填入重要密钥。
           </p>
         </div>
       </section>

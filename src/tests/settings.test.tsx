@@ -49,7 +49,7 @@ describe('改动 9：AI 密钥加密设置', () => {
       const input = screen.getByLabelText('DeepSeek 密钥（只填一次）') as HTMLInputElement
       expect(input.type).toBe('password')
       expect(screen.getByText('未设置')).toBeInTheDocument()
-      expect(screen.getByText(/DeepSeek 暂不支持看图/)).toBeInTheDocument()
+      expect(screen.getByText(/必须先填密钥才能看图/)).toBeInTheDocument()
       expect(screen.getByText(/api\.deepseek\.com/)).toBeInTheDocument()
       expect(screen.getByText(/不要在共用设备上填入重要密钥/)).toBeInTheDocument()
     })
