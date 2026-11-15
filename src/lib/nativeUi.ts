@@ -7,6 +7,7 @@
  *
  * 可编辑区域（输入框、文本域、select、contenteditable、data-allow-select）
  * 一律放行：用户要能在设置页粘贴 DeepSeek 密钥、在备注里编辑文字。
+ * 绝不拦截 paste / copy / cut 事件，也不清掉输入框里的选区。
  */
 
 export const EDITABLE_SELECTOR =
@@ -25,6 +26,8 @@ export function installNativeTextGuards(doc: Document = document): () => void {
   }
 
   const clearStraySelection = () => {
+    // 焦点在输入框里时完全不碰选区，避免破坏「长按 → 全选 → 粘贴」的流程
+    if (isEditableTarget(doc.activeElement)) return
     const selection = doc.getSelection?.()
     if (!selection || selection.isCollapsed) return
     const anchor = selection.anchorNode

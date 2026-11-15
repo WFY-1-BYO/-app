@@ -3,8 +3,11 @@
 /*
  * 原生 App 观感：长按静态文字不再弹出「复制 / 剪切 / 全选 / 朗读」这类
  * 网页式选择菜单（安装到手机 / 平板后由 WebView 承载，必须显式关闭）。
- * 输入框、文本域、可编辑区域保留选择与长按能力，方便粘贴 DeepSeek 密钥、
- * 编辑备注；JS 侧的兜底拦截见 lib/nativeUi.ts。
+ *
+ * 凡是需要用户输入的文本框（input / textarea / select / contenteditable）
+ * 一律放行长按与选择，保证「粘贴」菜单和系统剪贴板可用：
+ * .app-shell * 的特异性高于 input，所以这里必须用 !important 覆盖回去。
+ * JS 兜底见 lib/nativeUi.ts，安卓层见 MainActivity.java。
  */
 html,
 body,
@@ -26,7 +29,7 @@ select,
 [contenteditable='true'] *,
 [data-allow-select='true'],
 [data-allow-select='true'] * {
-  -webkit-touch-callout: default;
+  -webkit-touch-callout: default !important;
   -webkit-user-select: text !important;
   -moz-user-select: text !important;
   -ms-user-select: text !important;

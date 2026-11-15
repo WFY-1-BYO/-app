@@ -25,18 +25,25 @@ describe('原生观感：长按静态文字不弹复制 / 剪切菜单', () => {
     expect(css).toContain('-webkit-tap-highlight-color: transparent')
   })
 
-  it('输入框、文本域、可编辑区域仍可选择，便于粘贴密钥', () => {
-    expect(css).toMatch(/input,[\s\S]*?textarea,[\s\S]*?\[contenteditable='true'\]/)
+  it('所有需要用户输入的文本框都能长按呼出粘贴菜单', () => {
+    expect(css).toMatch(/input,[\s\S]*?textarea,[\s\S]*?select,[\s\S]*?\[contenteditable='true'\]/)
+    // .app-shell * 特异性高于 input，必须用 !important 才能放行
+    expect(css).toContain('-webkit-touch-callout: default !important')
     expect(css).toContain('user-select: text !important')
     expect(EDITABLE_SELECTOR).toContain('input')
     expect(EDITABLE_SELECTOR).toContain('textarea')
+    expect(EDITABLE_SELECTOR).toContain('select')
   })
 
-  it('安卓 WebView 层同时关闭长按与选择 ActionMode', () => {
-    expect(mainActivity).toContain('setLongClickable(false)')
+  it('安卓层按命中区域区分：输入框放行粘贴，静态文字消费长按', () => {
     expect(mainActivity).toContain('setOnLongClickListener')
+    expect(mainActivity).toContain('getHitTestResult()')
+    expect(mainActivity).toContain('WebView.HitTestResult.EDIT_TEXT_TYPE')
+    expect(mainActivity).toContain('return false')
     expect(mainActivity).toContain('return true')
     expect(mainActivity).toContain('getBridge().getWebView()')
+    // 不能再无条件禁用整个 WebView 的长按，否则输入框粘贴菜单也一起没了
+    expect(mainActivity).not.toContain('setLongClickable(false)')
   })
 
   it('静态文字的 contextmenu / selectstart / dragstart 被拦截', () => {
