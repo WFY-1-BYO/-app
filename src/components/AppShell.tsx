@@ -68,7 +68,7 @@ export default function AppShell() {
             ))}
           </nav>
           <p className="side-nav-foot">
-            v1.7{profileLabel ? ` · ${profileLabel}` : ''} · 数据存于本机
+            v1.7.1{profileLabel ? ` · ${profileLabel}` : ''} · 数据存于本机
             <br />
             NDM 可导出迁移
           </p>
