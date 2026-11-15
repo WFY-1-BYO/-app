@@ -1,0 +1,2 @@
+# 设计令牌测试按 LF 读取 CSS；统一 CSS 换行，避免 Windows 检出成 CRLF 后误判
+*.css text eol=lf
