@@ -5,6 +5,7 @@ import NutritionPie from '../components/NutritionPie'
 import { evaluateMeal } from '../lib/nutrition'
 import { chatWithDeepSeek } from '../lib/deepseek'
 import { hasAiKey } from '../lib/aiKey'
+import { recommendCookingMethods, summarizeCookingMethods } from '../lib/cookingMethods'
 
 export default function MealResult() {
   const { id } = useParams()
@@ -31,7 +32,7 @@ export default function MealResult() {
         },
         {
           role: 'user',
-          content: `用户目标：${profile.goal === 'lose_fat' ? '减脂' : profile.goal === 'gain_muscle' ? '增肌' : '维持健康'}。${profile.diseases.length > 0 ? `健康情况：${profile.diseases.join('、')}。` : ''}这一餐：${session.dishes[0]?.name ?? '配餐'}，能量约 ${Math.round(session.nutrition.calories)} kcal，碳水 ${session.nutrition.carbs}g、蛋白质 ${session.nutrition.protein}g、脂肪 ${session.nutrition.fat}g。食材：${session.ingredients.map(item => item.name).join('、')}。请结合这些信息解读这一餐。`,
+          content: `用户目标：${profile.goal === 'lose_fat' ? '减脂' : profile.goal === 'gain_muscle' ? '增肌' : '维持健康'}。${profile.diseases.length > 0 ? `健康情况：${profile.diseases.join('、')}。` : ''}这一餐：${session.dishes[0]?.name ?? '配餐'}，能量约 ${Math.round(session.nutrition.calories)} kcal，碳水 ${session.nutrition.carbs}g、蛋白质 ${session.nutrition.protein}g、脂肪 ${session.nutrition.fat}g。食材：${session.ingredients.map(item => item.name).join('、')}。建议烹饪方式：${summarizeCookingMethods(session.dishes[0]?.cookingMethods ?? recommendCookingMethods(session.ingredients))}。请结合这些信息解读这一餐，并沿用建议的烹饪方式，不要推荐油炸、久炖等会明显损失营养的做法。`,
         },
       ])
       setAiText(text)
@@ -57,6 +58,9 @@ export default function MealResult() {
   }
 
   const evaluation = profile ? evaluateMeal(session.nutrition, profile, session.mealType) : null
+  // 旧版本配餐数据没有该字段时，按当次食材即时补算，保证升级后也能看到建议
+  const cookingMethods =
+    session.dishes[0]?.cookingMethods ?? recommendCookingMethods(session.ingredients)
 
   return (
     <div className="stack">
@@ -99,6 +103,23 @@ export default function MealResult() {
               </ol>
             </article>
           ))}
+
+          <h2 className="section-title">建议烹饪方式</h2>
+          <p className="muted">
+            优先选加热短、用水少、不额外用油的做法，更能保留食材本身的营养价值。
+          </p>
+          <ul className="cooking-method-list" aria-label="建议烹饪方式">
+            {cookingMethods.map(method => (
+              <li className="cooking-method" key={`${method.appliesTo}-${method.name}`}>
+                <div className="cooking-method-head">
+                  <strong className="cooking-method-name">{method.name}</strong>
+                  <span className="cooking-method-tag">{method.appliesTo}</span>
+                </div>
+                <p>{method.reason}</p>
+                <p className="cooking-method-tip">做法：{method.tip}</p>
+              </li>
+            ))}
+          </ul>
 
           <h2 className="section-title">当次食材与用量</h2>
           <ul>

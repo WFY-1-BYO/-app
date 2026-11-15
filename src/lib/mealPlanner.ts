@@ -10,6 +10,7 @@ import type {
 import { createId, nowIso } from './id'
 import { foodCategory } from './foodDatabase'
 import { nutritionFromIngredients } from './nutrition'
+import { recommendCookingMethods } from './cookingMethods'
 
 function normalizeName(name: string) {
   return name.trim().toLowerCase()
@@ -134,6 +135,7 @@ export function createMealSession(input: {
     servings: 1,
     steps,
     ingredientIds: available.map(ingredient => ingredient.id),
+    cookingMethods: recommendCookingMethods(available),
   }
   const missing = ['grain', 'protein', 'vegetable'].filter(
     category => !categories.has(category),
@@ -142,6 +144,7 @@ export function createMealSession(input: {
   const nutrition = nutritionFromIngredients(available)
   const reasonParts: string[] = []
   reasonParts.push(`依据当次已有食材和${goalLabel(profile.goal)}目标搭配。`)
+  reasonParts.push('已按食材类别给出更保留营养的具体烹饪方式，见「建议烹饪方式」。')
   if (missing.length > 0) reasonParts.push(`当前缺少${missing.join('、')}，已单独给出补充建议。`)
   if (profile.diseases.length > 0)
     reasonParts.push('已按已填写疾病情况优先考虑更稳妥的搭配。')

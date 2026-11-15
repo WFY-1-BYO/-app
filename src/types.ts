@@ -88,12 +88,26 @@ export interface MealIngredient {
   portion?: number
 }
 
+/** 具体的烹饪方式建议：给出方式、保留营养的理由和可执行的操作要点 */
+export interface CookingMethod {
+  /** 例如「微波炉加热（少水短时）」 */
+  name: string
+  /** 适用于哪一类当次食材，例如「蔬菜」 */
+  appliesTo: string
+  /** 为什么这种方式更能保留食材本身的营养价值 */
+  reason: string
+  /** 具体怎么做（火候 / 时间 / 水量） */
+  tip: string
+}
+
 export interface Dish {
   id: string
   name: string
   servings: number
   steps: string[]
   ingredientIds: string[]
+  /** V1.7 起：明确建议烹饪方式；旧数据没有该字段时按空处理 */
+  cookingMethods?: CookingMethod[]
 }
 
 export interface MealSession {
