@@ -1,6 +1,7 @@
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import FloatingAssistant from './FloatingAssistant'
 import MedalCelebration from './MedalCelebration'
+import BackNavigation from './BackNavigation'
 import NavIcon, { type NavIconName } from './NavIcon'
 import { useIsTablet } from '../lib/breakpoint'
 import { deviceProfileLabel, resolveDeviceProfile } from '../lib/deviceProfile'
@@ -75,6 +76,7 @@ export default function AppShell() {
       )}
 
       <div className="app-content">
+        <BackNavigation />
         <header className="app-header">
           <div className="brand">
             <span className="brand-mark">营</span>

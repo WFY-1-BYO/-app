@@ -1713,3 +1713,41 @@ button.chip {
     flex-direction: column;
   }
 }
+
+/* ===== V1.7.1 二级页面返回入口 ===== */
+.back-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 12px 0 0;
+}
+
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 8px 16px 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--primary-strong);
+  font-size: var(--fs-body);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.back-button span {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.back-bar-hint {
+  font-size: var(--fs-hint);
+}
+
+/* 平板端页头隐藏，返回条要跟着内容区的左右留白 */
+.app-shell.tablet-layout .back-bar {
+  padding-top: 24px;
+}
