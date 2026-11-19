@@ -112,7 +112,7 @@ describe('V1.7 手机 / 平板分版', () => {
       expect(pad.container.querySelector('.app-shell')?.className).toContain('device-pad')
       expect(pad.container.querySelector('.side-nav')).not.toBeNull()
       expect(pad.container.querySelector('.bottom-nav')).toBeNull()
-      expect(screen.getByText(/v1\.7\.1 · 平板端 · 数据存于本机/)).toBeInTheDocument()
+      expect(screen.getByText(/v1\.7\.2 · 平板端 · 数据存于本机/)).toBeInTheDocument()
       pad.unmount()
 
       stubMedia(true)
