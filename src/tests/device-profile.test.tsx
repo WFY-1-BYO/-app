@@ -139,8 +139,8 @@ describe('V1.7 手机 / 平板分版', () => {
       expect(buildGradle).toContain("versionNameSuffix '-pad'")
       expect(buildGradle).toContain('家庭营养师·手机')
       expect(buildGradle).toContain('家庭营养师·平板')
-      expect(buildGradle).toContain('versionCode 19')
-      expect(buildGradle).toContain('versionName "1.7.1"')
+      expect(buildGradle).toContain('versionCode 20')
+      expect(buildGradle).toContain('versionName "1.7.2"')
     })
 
     it('手机竖屏、平板横竖屏自由，主清单用分版应用名', () => {
@@ -161,7 +161,7 @@ describe('V1.7 手机 / 平板分版', () => {
 
     it('package.json 提供分版构建命令', () => {
       const pkg = JSON.parse(repoFile('package.json')) as { version: string; scripts: Record<string, string> }
-      expect(pkg.version).toBe('1.7.1')
+      expect(pkg.version).toBe('1.7.2')
       expect(pkg.scripts['build:phone']).toContain('--mode phone')
       expect(pkg.scripts['build:pad']).toContain('--mode pad')
       expect(pkg.scripts['sync:devices']).toContain('sync-device-assets.mjs')

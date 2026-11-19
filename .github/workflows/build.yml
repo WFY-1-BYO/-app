@@ -18,7 +18,7 @@ jobs:
     name: 类型检查 · Lint · 测试 · Web 构建 · 打包
     runs-on: ubuntu-latest
     env:
-      APP_VERSION: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || 'V1.7.1' }}
+      APP_VERSION: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || 'V1.7.2' }}
     steps:
       - name: 拉取源码
         uses: actions/checkout@v4
