@@ -4,11 +4,16 @@ import { openKey } from './aiKey'
 /**
  * DeepSeek 在线接口（OpenAI 兼容协议，已验证支持 CORS，浏览器可直接调用）。
  * 密钥由用户在设置页填一次，AES 加密存本机；这里只负责真实调用。
- * 文本模型（deepseek-chat）用于健康报告解读、配餐点评；
- * 视觉模型（deepseek-flash）用于食材照片识别，详见 recognizeIngredientsWithVision。
+ *
+ * 模型统一使用 deepseek-flash（V4.1 Flash，原生多模态）：文本用于健康报告解读、
+ * 配餐点评，视觉用于食材照片识别（recognizeIngredientsWithVision）。
+ * 注意：旧的 deepseek-chat 模型已于 2026-07-24 被官方下线并移出模型列表，
+ * 继续调用会失败，因此文本与视觉都改走 deepseek-flash。
+ * deepseek-flash 默认开启思考模式，这里显式关闭以保持原有响应速度、让 temperature 生效。
+ *
  * 密钥仅在本机解密后用于本次请求，不写入代码、不进仓库、不随安装包明文分发。
  */
-export const DEEPSEEK_MODEL = 'deepseek-chat'
+export const DEEPSEEK_MODEL = 'deepseek-flash'
 
 export interface ChatMessage {
   role: 'system' | 'user' | 'assistant'
@@ -41,6 +46,7 @@ export async function chatWithDeepSeek(
       model: DEEPSEEK_MODEL,
       messages,
       temperature: options?.temperature ?? 0.6,
+      thinking: { type: 'disabled' },
       stream: false,
     }),
     signal: options?.signal,

@@ -45,6 +45,9 @@ describe('V1.4 改动 12：DeepSeek API 真实接入', () => {
     expect(headers.Authorization).toBe('Bearer sk-test-key')
     const body = JSON.parse(String(init?.body))
     expect(body.model).toBe(DEEPSEEK_MODEL)
+    // deepseek-chat 已于 2026-07-24 下线，文本与视觉都必须走 deepseek-flash
+    expect(DEEPSEEK_MODEL).toBe('deepseek-flash')
+    expect(body.thinking).toEqual({ type: 'disabled' })
     expect(body.messages.length).toBe(2)
     expect(body.stream).toBe(false)
   })
